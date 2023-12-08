@@ -100,7 +100,7 @@ window.onload = function () {
 
                         }
                         // window.history.replaceState({}, null, window.origin);
-                        console.log(data.room_id, packet)
+                        console.log(data.room_id, packet);
                         socket.emit('join invitation', data.room_id, packet)
                     })
 
@@ -2873,8 +2873,8 @@ function handleSocket(socket) {
     });
 
     socket.on('players joined', (players, roomData) => {
-        // console.log("AFTO FTANEI EDw");
-        // console.log(players, roomData);
+        console.log("AFTO FTANEI EDw");
+        console.log(players, roomData);
 
         if (cardStatus == 'create-my-room-card') {
             // console.log("Egine afto")
