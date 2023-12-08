@@ -99,7 +99,7 @@ window.onload = function () {
                             border_hue: playerConfig.border_hue
 
                         }
-                        // window.history.replaceState({}, null, window.origin);
+                        window.history.replaceState({}, null, window.origin);
                         console.log(data.room_id, packet);
                         socket.emit('join invitation', data.room_id, packet)
                     })
