@@ -1,0 +1,696 @@
+* {
+	box-sizing: border-box;
+}
+
+html,
+body {
+	margin: 0;
+	padding: 0;
+	height: 3000px;
+	overflow: hidden;
+}
+
+:root {
+	--dark-text-color: #333;
+	--light-text-color: white;
+	--green: hsl(157, 85%, 50%);
+	--dark-background: rgb(61, 70, 70);
+	--game-font: cursive;
+}
+
+.game-font {
+	font-family: var(--game-font);
+}
+
+.logo-container {
+	display: flex;
+	justify-content: space-between;
+	align-items: center;
+	width: 90%;
+	margin: 0rem auto 3rem auto;
+}
+
+#logo {
+	font-size: 5rem;
+	color: var(--green);
+	-webkit-text-stroke: 1px lightgray;
+}
+#extra-color {
+	color: var(--light-text-color);
+}
+#sign-in {
+	font-size: 5rem;
+	color: var(--green);
+	-webkit-text-stroke: 1px lightgray;
+}
+.flex-container {
+	display: flex;
+}
+
+.main-section {
+	max-height: 50vh;
+	min-height: 50vh;
+}
+
+.col-1 {
+	width: 32%;
+
+	display: flex;
+	flex-direction: column;
+	justify-content: start;
+	align-items: center;
+}
+#display-character {
+	background-color: rgb(61, 70, 70);
+	border: 5px var(--green) solid;
+	border-radius: 12px;
+}
+#display-character p {
+	text-align: center;
+	font-size: 1.6rem;
+	margin: 0.3rem;
+	color: var(--light-text-color);
+}
+#display-character i {
+	padding-top: 3px;
+}
+.buttons {
+	margin: 0.3rem;
+	display: flex;
+	justify-content: space-around;
+}
+.buttons #change-name {
+	font-size: 1.5rem;
+}
+
+#display-character canvas {
+	background-color: var(--light-text-color);
+	border: 3px var(--green) solid;
+}
+#random-name-btn {
+	border-radius: 8px;
+	font-size: 1.2rem;
+	border: 1px black solid;
+
+	background-color: var(--green);
+	color: var(--dark-text-color);
+	padding: 0.3rem;
+	font-family: cursive;
+}
+#random-color-btn {
+	border-radius: 8px;
+	font-size: 1.2rem;
+	border: 1px black solid;
+
+	background-color: var(--green);
+	color: var(--dark-text-color);
+	padding: 0.3rem;
+	font-family: cursive;
+}
+
+#change-name-div-2 {
+	display: flex;
+	margin: 0.6rem;
+	text-align: center;
+	justify-content: space-between;
+	font-size: 1.3rem;
+}
+
+#change-name-div-2 input {
+	border-radius: 8px;
+}
+
+.col-2 {
+	width: 40%;
+	display: flex;
+	flex-direction: column;
+	justify-content: center;
+	overflow: visible;
+}
+#home-ui-card {
+	padding: 1rem;
+}
+.buttons-container {
+	display: flex;
+	flex-direction: column;
+}
+.buttons-container button {
+	font-size: 2rem;
+	margin: 0.8rem;
+}
+.game-button {
+	border: 1px black solid;
+	border-radius: 12px;
+	background-color: var(--green);
+	color: var(--dark-text-color);
+	padding: 0.3rem;
+	font-family: cursive;
+}
+.card {
+	display: none;
+	overflow: visible;
+	background-color: rgb(61, 70, 70);
+	border: 5px var(--green) solid;
+	border-radius: 12px;
+	color: var(--light-text-color);
+}
+.your-room-card h2 {
+	text-align: center;
+	font-size: 2rem;
+}
+.input-div {
+	display: flex;
+	justify-content: space-around;
+	margin-top: 0.3rem;
+	font-size: 1.4rem;
+}
+.input-div label {
+	width: 40%;
+}
+.input-div input {
+	width: 50%;
+}
+
+#room-name-p {
+	display: none;
+}
+#room-password-p {
+	display: none;
+}
+#room-password-div {
+	display: none;
+}
+.input-div p {
+	margin: 0;
+	width: 45%;
+}
+.your-room-card h3 {
+	margin: 0.2rem;
+	text-align: center;
+	font-size: 1.6rem;
+}
+
+.input-div button {
+	font-size: 1.7rem;
+	margin: 0.2rem;
+}
+
+#players-joined-div {
+	padding: 0.3rem;
+	font-size: 1.3rem;
+	width: 90%;
+	margin: auto;
+}
+.button-2 {
+	background-color: var(--green);
+	color: var(--dark-text-color);
+	border: 1px black solid;
+	border-radius: 8px;
+}
+.div-with-2-btns {
+	display: flex;
+	justify-content: space-around;
+}
+#public-private-div {
+	margin: 0.5rem;
+	font-size: 1.5rem;
+}
+#public-private-div:hover {
+	cursor: pointer;
+}
+.check-color {
+	color: var(--green);
+}
+
+#cancel-my-room-btn {
+	margin: auto;
+	margin-top: 0.3rem;
+	margin-bottom: 0.3rem;
+	font-size: 1.5rem;
+	background-color: var(--green);
+	color: var(--dark-text-color);
+	border: 1px black solid;
+	border-radius: 6px;
+}
+
+#start-room-game {
+	margin: auto;
+	margin-top: 0.3rem;
+	margin-bottom: 0.3rem;
+	font-size: 1.5rem;
+	background-color: var(--green);
+	color: var(--dark-text-color);
+	border: 1px black solid;
+	border-radius: 6px;
+}
+#create-room-note-div {
+	text-align: left;
+	font-size: 1.3rem;
+	margin: 0.5rem;
+}
+#create-room-extra-note {
+	text-align: center;
+}
+
+#create-room-extra-note ul {
+	text-align: left;
+	margin: 1rem;
+}
+#my-room-div {
+	display: none;
+	border: black 1px solid;
+	outline-color: var(--green);
+	outline-style: outset;
+	margin: 0.5rem;
+}
+#link-p {
+	font-size: 1rem;
+}
+
+.join-room-card {
+	height: fit-content;
+}
+.join-room-card h2 {
+	text-align: center;
+	margin: 0.3rem;
+}
+.join-room-card {
+	font-size: 1.4rem;
+}
+.join-room-card #rooms-container {
+	padding: 0.3rem;
+	height: 260px;
+	overflow: auto;
+	border: black 1px solid;
+	outline-color: var(--green);
+	outline-width: 5px;
+	outline-style: inset;
+	margin: 0.5rem;
+}
+.join-room-card .room-div p {
+	margin: 0;
+}
+.join-room-card .room-div button {
+	display: block;
+	text-align: center;
+	font-size: 1.6rem;
+	width: 50%;
+	margin: 0.2rem auto;
+	background-color: var(--green);
+	border-radius: 8px;
+	font-family: cursive;
+	color: var(--dark-text-color);
+}
+
+#room-div-prototype {
+	display: none;
+	border: black 1px solid;
+	outline-color: var(--green);
+	outline-style: outset;
+	margin: 0.5rem;
+}
+
+#join-with-link-div {
+	margin: 0.2rem;
+}
+#join-with-link-div label {
+	display: inline-block;
+	text-align: center;
+	width: 40%;
+}
+#join-with-link-div input {
+	display: inline-block;
+	font-size: 1.5rem;
+	text-align: center;
+	width: 40%;
+}
+#join-with-link-div button {
+	display: inline-block;
+	text-align: center;
+	padding: 0;
+}
+#join-with-link-div i {
+	font-size: 1.5rem;
+	padding: 0;
+	margin: 0;
+	color: var(--green);
+}
+
+#joined-a-room-div {
+	display: none;
+
+	padding: 0.3rem;
+	margin-bottom: 0.3rem;
+	border: black 1px solid;
+	outline-color: var(--green);
+	outline-width: 3px;
+	outline-style: outset;
+	margin: 0.5rem;
+}
+.joined-room-p {
+	margin: 0.3rem;
+}
+
+#leave-the-joined-room {
+	display: block;
+	width: 30%;
+	background-color: var(--green);
+	color: var(--dark-text-color);
+	margin: 0.3rem auto 0.3rem;
+	font-size: 1.5rem;
+	border-radius: 6px;
+}
+
+#refresh-rooms {
+	display: block;
+	width: 70%;
+	margin: 1rem auto;
+	font-size: 1.6rem;
+	background-color: var(--green);
+	color: var(--dark-text-color);
+	border-radius: 8px;
+	font-family: cursive;
+}
+
+#join-room-home-button {
+	display: block;
+	width: 70%;
+	margin: 1rem auto;
+	font-size: 1.6rem;
+	background-color: var(--green);
+	color: var(--dark-text-color);
+	border-radius: 8px;
+	font-family: cursive;
+}
+
+#style-cell-card {
+	width: 400px;
+	align-self: center;
+}
+.set-style-card {
+	height: fit-content;
+}
+#style-cell-form {
+	margin: 0;
+}
+.color-picker-flex {
+	display: flex;
+	justify-content: center;
+	margin: 0.4rem;
+}
+.radio-input-div {
+	display: flex;
+	justify-content: space-between;
+	margin: 0.2rem;
+}
+.radio-input-div input {
+	width: 30%;
+	font-size: 0.5rem;
+}
+.radio-input-div label {
+	width: 60%;
+	font-size: 1.6rem;
+}
+.input-style {
+	background-color: var(--green);
+	border-radius: 8px;
+}
+/* #change-name-div {
+	font-size: 1.5rem;
+	margin: 0.6rem;
+	text-align: center;
+} */
+#save-and-close-style {
+	display: block;
+	width: 50%;
+	margin: 0.6rem auto;
+	background-color: var(--green);
+	color: var(--dark-text-color);
+	font-size: 1.6rem;
+	border: black solid 1px;
+	border-radius: 6px;
+}
+
+#name-length-note {
+	margin: 0.3rem;
+	font-size: 1rem;
+	color: var(--green);
+}
+
+.red {
+	background-color: rgb(187, 26, 26);
+	height: 30px;
+}
+
+@keyframes slide-out {
+	0% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+
+	100% {
+		transform: translateY(20px);
+		opacity: 0;
+	}
+}
+@keyframes slide-in {
+	0% {
+		transform: translateY(20px);
+		opacity: 0;
+	}
+
+	100% {
+		transform: translateY(0);
+		opacity: 1;
+	}
+}
+
+.raise:hover,
+.raise:focus {
+	box-shadow: 0 0.3em 0.3em -0.15em var(--green);
+	transform: translateY(-0.1em);
+}
+
+#gameContainer {
+	display: none;
+}
+
+#transition-to-game-div {
+	display: flex;
+	justify-content: flex-end;
+	width: 100%;
+	height: 100vh;
+
+	position: fixed;
+	z-index: 2;
+	background-color: rgba(61, 70, 70, 0.5);
+}
+
+#screen-info {
+	text-align: center;
+	font-family: cursive;
+	font-size: 3rem;
+	color: var(--light-text-color);
+	-webkit-text-stroke: 2px black;
+}
+#ghost-countdown {
+	text-align: center;
+	font-family: cursive;
+	font-size: 10rem;
+	color: var(--light-text-color);
+	-webkit-text-stroke: 3px black;
+}
+#div-3-2-1 {
+	text-align: center;
+	font-family: cursive;
+	font-size: 10rem;
+	color: var(--light-text-color);
+	-webkit-text-stroke: 3px black;
+}
+
+#in-game-panel {
+	display: flex;
+	justify-content: flex-end;
+}
+#quit-div {
+	width: 10%;
+
+	opacity: 0.9;
+	color: black;
+
+	position: fixed;
+	top: 1vh;
+	left: 1%;
+	z-index: 1;
+	border-radius: 5px;
+	padding: 5px;
+}
+#quick-game-btn {
+	display: block;
+	width: 50%;
+	margin: auto;
+	font-size: 1.3rem;
+	opacity: 0.9;
+	border-radius: 6px;
+	border: 1px black solid;
+}
+
+#leaderboardsDiv {
+	width: 10%;
+
+	opacity: 0.8;
+	background-color: lightgray;
+	color: black;
+
+	position: fixed;
+	top: 1vh;
+	left: 90%;
+
+	z-index: 1;
+	border-radius: 5px;
+	padding: 1rem;
+}
+
+#leaderboard-span {
+	text-align: center;
+	display: block;
+	margin: 0;
+	padding: 0;
+}
+
+#pingDiv {
+	-webkit-text-stroke: 1px lightgray;
+
+	width: 10%;
+
+	position: fixed;
+	top: 1vh;
+	left: 60%;
+
+	z-index: 1;
+	opacity: 0.9;
+	user-select: none;
+	font-size: 25px;
+
+	color: mediumseagreen;
+}
+#scoreBoard {
+	-webkit-text-stroke: 1px lightgray;
+	width: 20%;
+
+	position: fixed;
+	top: 1vh;
+	left: 70%;
+
+	z-index: 1;
+	opacity: 0.9;
+	user-select: none;
+	font-size: 25px;
+
+	color: mediumseagreen;
+}
+
+#countDownTimer {
+	width: 10%;
+	z-index: 1;
+	opacity: 0.9;
+	user-select: none;
+	font-size: 25px;
+
+	position: fixed;
+	top: 1vh;
+	left: 50%;
+
+	color: mediumseagreen;
+}
+
+#timer {
+	-webkit-text-stroke: 1px lightgray;
+}
+#FinalScoreBoard {
+	display: none;
+}
+
+#FinalScoreBoard h1 {
+	text-align: center;
+	padding: 1rem;
+}
+#board {
+	padding: 1rem;
+}
+#roomGameResults {
+	padding: 0rem;
+}
+
+#room-game-results-div {
+	height: 300px;
+	overflow: auto;
+}
+.results-div {
+	margin: 1rem;
+}
+
+.game-button {
+	background-color: var(--green);
+	color: var(--dark-text-color);
+}
+#return-home-from-final-score {
+	font-size: 1.5rem;
+	display: block;
+	width: 60%;
+	margin: auto;
+	margin-bottom: 0.3rem;
+}
+#canvas {
+	position: absolute;
+	left: 0;
+	top: 0;
+	z-index: 0;
+}
+
+#backgroundCanvas {
+	position: fixed;
+	top: 0px;
+	left: 0px;
+	z-index: -1;
+	opacity: 1;
+	filter: brightness(40%);
+}
+
+.modal {
+	display: none; /* Hidden by default */
+	position: fixed; /* Stay in place */
+	z-index: 1; /* Sit on top */
+	padding-top: 30vh; /* Location of the box */
+	left: 0;
+	top: 0;
+	width: 100%; /* Full width */
+	height: 100%; /* Full height */
+	overflow: auto; /* Enable scroll if needed */
+	background-color: rgba(0, 0, 0, 0.7); /* Black w/ opacity */
+}
+
+/* Modal Content */
+.modal-content {
+	background-color: var(--dark-background);
+	margin: auto;
+	padding: 20px;
+	border: 1px solid var(--green);
+	width: 80%;
+	border-radius: 25px;
+}
+.alert_p {
+	text-align: center;
+	font-size: 1.5rem;
+	font-family: cursive;
+	color: var(--light-text-color);
+}
+
+.alert_modal_button {
+	display: block;
+	width: 20%;
+	margin: auto;
+	font-size: 1.7rem;
+	background-color: var(--green);
+	border-radius: 6px;
+}

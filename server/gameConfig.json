@@ -1,0 +1,25 @@
+{
+	"gameWidth": 3000,
+	"gameHeight": 3000,
+
+	"initialMass": 120,
+	"initialRadius": 120,
+	"maxTotalMass": 300,
+	"maxMassReachedTicks": 500,
+
+	"numOfFoods": 100,
+	"roomGameDuration": 90,
+	"virusRadius": 100,
+	"numOfViruses": 10,
+	"ejectedMassRadius": 15,
+
+	"scoreFromFood": 1,
+	"scoreFromCell": 10,
+	"scoreFromVirus": 20,
+	"scoreFromMaxMass": 50,
+
+	"betterPosition": true,
+
+	"broadcast_ups": 30,
+	"gameWorld_ups": 60
+}

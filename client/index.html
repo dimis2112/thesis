@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, user-scalable=no, initial-scale=1.0">
+    <title>Document</title>
+    <link rel="stylesheet" href="css/style.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/4.7.0/css/font-awesome.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/@jaames/iro@5"></script>
+</head>
+
+<body>
+    <div id="ui-container">
+        <canvas id="backgroundCanvas"></canvas>
+
+        <div class="logo-container game-font borders">
+            <div id="logo" class="flex-item">Jimmys<span id="extra-color">.io</span> </div>
+            <div id="sign-in" class="flex-item">Eat Them<span id="extra-color">!</span></div>
+        </div>
+
+        <section class="main-section game-font flex-container borders">
+            <div class="col-1 borders">
+                <div id="display-character" class="card">
+                    <p>Your Character:</p>
+                    <canvas id="display-chararcter-canvas"></canvas> <br>
+                    <div id="change-name-div-2">
+                        <label for="room-name">Set Name:</label>
+                        <input class="input-style" type="text" id="cell-name" minlength="1" maxlength="11">
+                    </div>
+                    <div class="buttons">
+                        <button id="random-name-btn" class="raise">Random Name</button>
+                        <button id="random-color-btn" class="raise"> <i class="fa fa-paint-brush"></i></button>
+                    </div>
+
+
+                </div>
+            </div>
+
+            <div class="col-2 borders">
+
+                <div id="home-ui-card" class="card  borders">
+                    <div class="buttons-container">
+                        <button id="start-btn" class="game-button raise">Press to Play</button>
+                        <button id="create-room-button" class="game-button raise">Create Room</button>
+                        <button id="join-room-button" class="game-button raise">Join Room</button>
+                        <button id="style-your-cell-button" class="game-button raise">Style your Cell</button>
+                    </div>
+                </div>
+
+                <div id="your-room-card" class="card borders your-room-card">
+                    <h2>Your Room</h2>
+                    <div id="room-name-div" class="input-div">
+                        <label for="room-name">Room Name:</label>
+                        <input type="text" id="room-name" class="input-style" minlength="1" maxlength="10">
+                        <p id="room-name-p"></p>
+                    </div>
+                    <div id="room-password-div" class="input-div">
+                        <label for="room-password">Room Password:</label>
+                        <input type="text" id="room-password" class="input-style">
+                        <p id="room-password-p"></p>
+                    </div>
+                    <div id="create-room-note-div">
+                        Your room will appear here , just fill the text and press create room
+                        <div id="create-room-extra-note">
+                            Remember:
+                            <ul>
+                                <li>Room name needs to be 1 to 10 characters long</li>
+                                <li>You can't change name while creating room</li>
+                                <li>Keep the room Private and invite your friends or change it to Public and let random
+                                    players to join</li>
+                            </ul>
+                        </div>
+                    </div>
+                    <div id="my-room-div">
+                        <h3>Players Joined:</h3>
+                        <div id="players-joined-div" class="borders">
+                            <span class="player-span">1)</span> <br>
+                            <span class="player-span">2)</span> <br>
+                            <span class="player-span">3)</span> <br>
+                            <span class="player-span">4)</span> <br>
+                            <span class="player-span">5)</span> <br>
+                        </div>
+                        <div class="input-div">
+                            <p>Invitation Link:</p>
+                            <p id="link-p">https//ghd.....</p>
+                        </div>
+                        <div id="public-private-div" class="div-with-2-btns">
+                            <div id="public-div">Public: <i id="public-check" class="fa fa-check check-color"
+                                    style="display: none;"></i> </div>
+                            <div id="private-div">Private: <i id="private-check" class="fa fa-check check-color"></i>
+                            </div>
+                        </div>
+                        <div class="div-with-2-btns">
+                            <button id="start-room-game" class="raise">Start Game</button>
+                            <button id="cancel-my-room-btn" class="raise">Cancel</button>
+                        </div>
+                    </div>
+                    <div class="input-div">
+                        <button id="create-my-room-btn" class="button-2 raise">Create Room</button>
+                        <button id="close-your-room-btn" class="button-2 raise">Close</button>
+                    </div>
+                </div>
+
+                <div id="join-room-card" class="borders card join-room-card">
+                    <h2>Available Rooms:</h2>
+                    <div id="room-div-prototype" class="room-div borders">
+                        <p id="join-room-name-p">Room : happy room</p>
+                        <p id="join-room-host-p">Host: Roberto</p>
+                        <p id="people-joined-p">People joined: 3/5</p>
+                        <button id="join-this-room-btn" class="raise">JOIN</button>
+                    </div>
+                    <div id="rooms-container" class="borders">
+
+                    </div>
+
+                    <!-- <div id="join-with-link-div">
+                        <label for="room-name">Join with Link:</label>
+                        <input type="text" id="cell-name">
+                        <button><i class="fa fa-check-square"></i></button>
+                    </div> -->
+                    <div id="joined-a-room-div">
+                        <p id="joined-room-name-p" class="joined-room-p">Room : happy room</p>
+                        <p id="joined-room-host-p" class="joined-room-p">Host: Roberto</p>
+                        <div id="players-joined-div">
+                            <p class="joined-room-p">Players joined:</p>
+                            <span class="player-span">1)</span> <br>
+                            <span class="player-span">2)</span> <br>
+                            <span class="player-span">3)</span> <br>
+                            <span class="player-span">4)</span> <br>
+                            <span class="player-span">5)</span> <br>
+                        </div>
+                        <button id="leave-the-joined-room" class="raise">Leave</button>
+                    </div>
+                    <div>
+                        <button id="refresh-rooms" class="raise">Refresh Rooms</button>
+                    </div>
+                    <div>
+                        <button id="join-room-home-button" class="raise">Return Home</button>
+                    </div>
+                </div>
+
+                <div id="style-cell-card" class="card borders set-style-card">
+                    <div class="color-picker-flex">
+                        <div id="color-picker">
+
+                        </div>
+                    </div>
+                    <br>
+                    <div id="style-cell-form">
+                        <div class="radio-input-div">
+                            <input type="radio" id="fill-color" name="color-togled" value="fill-color">
+                            <label for="fill-color">Fill color</label>
+                        </div>
+                        <div class="radio-input-div">
+                            <input type="radio" id="border-color" name="color-togled" value="border-color">
+                            <label for="border-color">Border Color</label>
+                        </div>
+                        <!-- <div id="change-name-div">
+                            <label for="room-name">Change Name:</label>
+                            <input class="input-style" type="text" id="cell-name" minlength="1" maxlength="11">
+                            <p id="name-length-note">Note: Name can be up to 11 characters long!</p>
+                        </div> -->
+                    </div>
+                    <button id="save-and-close-style" class="raise">Save & Close</button>
+                </div>
+
+                <div id="FinalScoreBoard" class=" card gameFont" style="display: block;">
+                    <h1>Match Results </h1>
+                    <div id="board">
+                        <span id="foodsEaten"></span> <br>
+                        <span id="cellsEaten"></span> <br>
+                        <span id="eliminations"></span> <br>
+                        <span id="highestMass"></span> <br>
+                        <span id="timeStayedAlive"></span> <br>
+                        <span id="highestPosition"></span> <br>
+
+                    </div>
+                    <div id="roomGameResults">
+                        <div id="room-game-results-div"></div>
+                    </div>
+                    <br>
+                    <button id="return-home-from-final-score" class=" raise gameFont game-button ">Home</button>
+
+                </div>
+            </div>
+        </section>
+
+
+        <div id="invitationModal" class="modal">
+            <!-- Modal content -->
+            <div class="modal-content">
+                <p class="alert_p">You have been invited to play a Jimmy's IO room game from palyer <span
+                        id="admin_name" style="color: mediumseagreen;"> </span></p>
+                <div class="div-with-2-btns">
+                    <button id="play_invitation" class="alert_modal_button raise">Play</button>
+                    <button id="invitation_return_home" class="alert_modal_button raise">Home</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="alertModal" class="modal">
+            <div class="modal-content">
+                <p id="alert_p" class="alert_p">Lorem ipsum dolor sit amet, consectetur adipisicing elit. Fugit soluta
+                    rem ipsam,
+                    officia tenetur molestias!</p>
+                <button id="alert_modal_button" class="alert_modal_button raise">OK </button>
+            </div>
+
+        </div>
+
+        <div id="adminLeftModal" class="modal">
+            <div class="modal-content">
+                <p class="alert_p">We are sorry but room's Admin left before the Room was ready</p>
+                <p class="alert_p">Try play in another room</p>
+                <button id="return_from_admin_left" class="alert_modal_button raise">Return </button>
+            </div>
+        </div>
+
+
+
+
+    </div>
+
+    <div id="gameContainer" class="gameFont">
+        <div id="transition-to-game-div" style="display: none;">
+            <div id="screen-info" style="display: none;">You are a ghost for now <br> Find a safe place <br>
+                <div id="ghost-countdown" style="display: none;"></div>
+                <div id="div-3-2-1-ghost">
+
+
+                </div>
+            </div>
+            <br>
+
+            <div id="div-3-2-1"></div>
+
+        </div>
+        <div id="in-game-panel">
+            <div id="quit-div">
+                <button id="quick-game-btn">Quit</button>
+            </div>
+            <div id="pingDiv" class="gameFont"></div>
+            <div id="countDownTimer" class="gameFont">
+                <span id="timer"></span>
+            </div>
+            <div id="scoreBoard">
+                <span id="FoodsEaten"> Foods: </span><br>
+                <span id="TotalMass"> Total Mass: </span>
+            </div>
+            <div id="leaderboardsDiv">
+                <span id="leaderboard-span">Leaderboard</span><br>
+                <span id="pos1"></span><br>
+                <span id="pos2"></span><br>
+                <span id="pos3"></span><br>
+                <span id="pos4"></span><br>
+                <span id="pos5"></span><br>
+                <span id="pos6"></span><br>
+                <span id="pos7"></span><br>
+                <span id="pos8"></span><br>
+                <span id="pos9"></span><br>
+                <span id="pos10"></span><br>
+            </div>
+
+
+        </div>
+        <canvas id="canvas"></canvas>
+        <img id="pattern" src="img/vector_black.png" style="display: none;">
+    </div>
+
+
+
+    <script src="/socket.io/socket.io.js"></script>
+    <script src="js/script.js"></script>
+    <script src="js/sideCanvas.js"></script>
+    <script src="js/backgroundCanvas.js"></script>
+
+
+
+</body>
+
+</html>
