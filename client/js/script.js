@@ -100,7 +100,7 @@ window.onload = function () {
 
                         }
                         window.history.replaceState({}, null, window.origin);
-                        console.log(data.room_id, packet);
+                        console.log(data.room_id, packet, "AAAAAA");
                         socket.emit('join invitation', data.room_id, packet)
                     })
 
