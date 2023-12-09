@@ -45,7 +45,7 @@ app.use('/invited', express.static(__dirname + '/../client'));
 
 let extra_size = [];
 
-for (let i = 0; i < 100000; i++) {
+for (let i = 0; i < 10000; i++) {
     extra_size.push('a');
 }
 let invitations = {};
@@ -1320,7 +1320,7 @@ setInterval(() => {
 
 
                     players[id].my_updates.push([...package2]);
-                    //  package2.push(extra_size);
+                    package2.push(extra_size);
                     players[id].socket.emit('u', package2);
                 }
 
