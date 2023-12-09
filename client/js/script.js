@@ -2312,7 +2312,7 @@ function handleSocket(socket) {
         UI_container.style.display = 'none';
         gameContainer.style.display = 'block';
 
-        create_current_state();
+        // create_current_state();
 
         // DO THE START GAME ANIMATION
         updates_received = 2
