@@ -2041,7 +2041,7 @@ let myMasses = {};
 let score_words = [];
 
 let interpollation_flag = false;
-let prediction_flag = false;
+let prediction_flag = true;
 let broadcast_ups = 60;
 
 let state = {
@@ -2416,8 +2416,8 @@ function handleSocket(socket) {
                     let x = array[1];
                     let y = array[2];
 
-                    playerConfig.visionCenter.x = playerConfig.visionCenter.x + 1 * (x - playerConfig.visionCenter.x);
-                    playerConfig.visionCenter.y = playerConfig.visionCenter.y + 1 * (y - playerConfig.visionCenter.y);
+                    playerConfig.visionCenter.x = playerConfig.visionCenter.x + 0.1 * (x - playerConfig.visionCenter.x);
+                    playerConfig.visionCenter.y = playerConfig.visionCenter.y + 0.1 * (y - playerConfig.visionCenter.y);
                     //  playerConfig.visionCenter.x = visionCenter.x;
                     //  playerConfig.visionCenter.y = visionCenter.y;
 
