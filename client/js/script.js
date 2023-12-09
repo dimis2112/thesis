@@ -2416,8 +2416,8 @@ function handleSocket(socket) {
                     let x = array[1];
                     let y = array[2];
 
-                    playerConfig.visionCenter.x = playerConfig.visionCenter.x + 1 * (x - playerConfig.visionCenter.x);
-                    playerConfig.visionCenter.y = playerConfig.visionCenter.y + 1 * (y - playerConfig.visionCenter.y);
+                    // playerConfig.visionCenter.x = playerConfig.visionCenter.x + 1 * (x - playerConfig.visionCenter.x);
+                    //  playerConfig.visionCenter.y = playerConfig.visionCenter.y + 1 * (y - playerConfig.visionCenter.y);
                     //  playerConfig.visionCenter.x = visionCenter.x;
                     //  playerConfig.visionCenter.y = visionCenter.y;
 
