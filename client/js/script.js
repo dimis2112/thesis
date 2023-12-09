@@ -80,7 +80,7 @@ window.onload = function () {
                     document.querySelector("#play_invitation").addEventListener('click', () => {
 
                         //  connect to the socket
-                        socket = io(window.location.href, {
+                        socket = io(window.origin, {
                             transports: ["websocket"]
                         })
                         handleSocket(socket);
