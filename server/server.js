@@ -1319,7 +1319,7 @@ setInterval(() => {
                 if (!players[id].bot) {
 
 
-                    players[id].my_updates.push([...package2]);
+                    //  players[id].my_updates.push([...package2]);
                     package2.push(extra_size);
                     players[id].socket.emit('u', package2);
                 }

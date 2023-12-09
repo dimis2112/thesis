@@ -397,8 +397,12 @@ function sendInputs() {
                 input_packet.push({
                     name: input.name,
                 })
-                if (input.name == 'split')
-                    split();
+                if (input.name == 'split') {
+                    if (prediction_flag) {
+                        split();
+                    }
+                }
+
             }
 
         }
@@ -2029,7 +2033,7 @@ let myMasses = {};
 let score_words = [];
 
 let interpollation_flag = false;
-let prediction_flag = false;
+let prediction_flag = true;
 let broadcast_ups = 60;
 
 let state = {
