@@ -398,7 +398,8 @@ io.on('connection', function (client) {
                 viruses: room.viruses,
                 enemies: roomsJs.getRoomEnemies(room, client.id),
                 foods: room.foods,
-                broadcast_ups: gc.broadcast_ups
+                broadcast_ups: gc.broadcast_ups,
+                enemy_cells: []
             }
 
             package.viruses = room.viruses;
@@ -426,7 +427,7 @@ io.on('connection', function (client) {
 
 
             }
-            package.enemies = enemies;
+            package.enemy_cells = [...enemies];
             console.log("enemies", enemies);
 
             players[id].socket.emit('init room game', package);
@@ -680,6 +681,16 @@ setInterval(() => {
                     //console.log("eimai bot")
                     game.generate_inputs(players[id]);
                 }
+                if (players[id].game_object.ghost) {
+
+                    if (Date.now() > players[id].game_object.ghost_start + 5000) {
+                        players[id].game_object.ghost = false;
+                        players[id].socket.emit('you are not ghost');
+                        io.to(roomId).emit('he is not ghost', players[id].father_id);
+                    }
+
+                }
+
 
                 players[id].game_object.updateMass();
 
@@ -882,57 +893,61 @@ setInterval(() => {
                                         players[id].game_object.score.cellsEaten += 1;
 
                                         // afairoume to fagomeno kyttaro apo to array
-                                        setTimeout(() => {
 
 
-                                            //let pos = { ...players[id2].game_object.cells[j].pos }
 
-                                            if (players[id2].game_object.cells.length > 1) {
+                                        //let pos = { ...players[id2].game_object.cells[j].pos }
+
+                                        if (players[id2].game_object.cells.length > 1) {
+                                            players[id2].game_object.cells.splice(j, 1);
+                                            j -= 1;
+                                        }
+
+                                        else {
+
+                                            players[id].game_object.score.eliminations += 1;
+
+                                            if (players[id2].roomId == 'liveWorld') {
+
                                                 players[id2].game_object.cells.splice(j, 1);
                                                 j -= 1;
-                                            }
-
-                                            else {
-
-                                                players[id].game_object.score.eliminations += 1;
-
-                                                if (players[id2].roomId == 'liveWorld') {
-
-                                                    players[id2].game_object.cells.splice(j, 1);
-                                                    j -= 1;
-                                                    if (!players[id2].bot && !players[id2].game_object.bot) {
-                                                        // an den einai bot , steile defeated kanonika.
-                                                        if (players[id2].game_object != null)
-                                                            players[id2].socket.emit('defeated', players[id2].game_object.score);
-                                                        // console.log("ESTEILA DEFEATED STON " + players[id2].name);
-                                                    }
-
-
-                                                } else {
-                                                    // respawn player to the room
-                                                    players[id2].game_object.cells[j].radius = gc.initialRadius;
-
-
-                                                    // make the player ghost
-                                                    players[id2].game_object.ghost = true;
-                                                    players[id2].socket.emit('you are ghost');
-                                                    io.to(roomId).emit('he is ghost', players[id2].father_id);
-
-
-                                                    // set countdown timer for un-ghost 
-
-                                                    setTimeout(() => {
-                                                        players[id2].game_object.ghost = false;
-                                                        players[id2].socket.emit('you are not ghost');
-                                                        io.to(roomId).emit('he is not ghost', players[id2].father_id);
-                                                    }, 5000)
-
+                                                if (!players[id2].bot && !players[id2].game_object.bot) {
+                                                    // an den einai bot , steile defeated kanonika.
+                                                    if (players[id2].game_object != null)
+                                                        players[id2].socket.emit('defeated', players[id2].game_object.score);
+                                                    // console.log("ESTEILA DEFEATED STON " + players[id2].name);
                                                 }
 
+
+                                            } else {
+                                                // respawn player to the room
+                                                players[id2].game_object.cells[j].radius = gc.initialRadius;
+
+
+                                                // make the player ghost
+
+                                                players[id2].game_object.ghost = true;
+                                                players[id2].game_object.ghost_start = Date.now();
+                                                players[id2].socket.emit('you are ghost');
+                                                io.to(roomId).emit('he is ghost', players[id2].father_id);
+
+
+
+
+                                                // set countdown timer for un-ghost 
+
+
+                                                // players[id2].game_object.ghost = false;
+                                                // players[id2].socket.emit('you are not ghost');
+                                                // io.to(roomId).emit('he is not ghost', players[id2].father_id);
+
+
                                             }
 
+                                        }
 
-                                        }, 0)
+
+
 
                                     }
 
@@ -940,6 +955,8 @@ setInterval(() => {
                             }
                         }
                     }
+
+
 
                 }
                 // update total mass 

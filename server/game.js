@@ -47,6 +47,7 @@ class Player {
     this.socket = null;
     this.roomName = null;
     this.ghost = false;
+    this.start
     this.maxMassReachedTicks = gc.maxMassReachedTicks;
     this.maxMassReachedTimes = 0;
 

@@ -785,7 +785,7 @@ function calculateState2() {
 
     state_temp.playerConfig.visionCenter.x = playerConfig.visionCenter.x;
     state_temp.playerConfig.visionCenter.y = playerConfig.visionCenter.y;
-    state_temp.myPlayer = { ...myPlayer };
+    state_temp.myPlayer = JSON.parse(JSON.stringify(myPlayer));
 
 
 
@@ -2194,6 +2194,7 @@ function ghost_animation() {
     document.querySelector("#transition-to-game-div").style.justifyContent = 'center';
     document.querySelector("#transition-to-game-div").style.alignItems = 'center';
     let sec = 5;
+    document.querySelector("#ghost-countdown").innerText = sec;
     document.querySelector("#screen-info").style.display = "block";
     document.querySelector("#div-3-2-1").style.display = "none";
     document.querySelector("#ghost-countdown").style.display = "block";
@@ -2203,8 +2204,8 @@ function ghost_animation() {
 
             clearInterval(countDown_Interval);
 
-            socket.emit("ready to un-ghost");
-            document.querySelector("#transition-to-game-div").style.display = 'none';
+            // socket.emit("ready to un-ghost");
+            //  document.querySelector("#transition-to-game-div").style.display = 'none';
             return;
         }
 
@@ -2257,6 +2258,7 @@ function handleSocket(socket) {
         // // console.log(myFoods);
 
         // create current state 
+        updates_received = 2;
         create_current_state();
 
         //  HIDE UI AND REVEAL CANVAS AND GAME CONTAINER
@@ -2301,6 +2303,8 @@ function handleSocket(socket) {
         myFoods = data.foods;
         myViruses = data.viruses;
         myEnemy_players = { ...data.enemies };
+        myEnemies = data.enemy_cells;
+
 
         // console.log("AFTOI OI ENEMIES HRTHAN ME TO INIT", data.enemies)
 
@@ -2311,6 +2315,7 @@ function handleSocket(socket) {
         create_current_state();
 
         // DO THE START GAME ANIMATION
+        updates_received = 2
         draw_first_frame();
         game_start_animation();
 
@@ -2345,6 +2350,7 @@ function handleSocket(socket) {
 
     })
     socket.on('you are not ghost', () => {
+        document.querySelector("#transition-to-game-div").style.display = 'none';
 
     })
     socket.on('he is not ghost', (father_id) => {
