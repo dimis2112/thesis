@@ -255,6 +255,11 @@ class Player {
             catapultForce: {
               speed: speed, dx: dx, dy: dy, friction: friction
             },
+            pre_split_data: {
+              x: cell.pos.x,
+              y: cell.pos.y,
+              radius: util.massToRadius(cell.mass / 2)
+            },
             mergeCooldown: 500,
             //merged: false,
             merge_able: false,
@@ -285,6 +290,11 @@ class Player {
             throw: false,
             catapultForce: {
               speed: speed, dx: dx, dy: dy, friction: friction
+            },
+            pre_split_data: {
+              x: cell.pos.x,
+              y: cell.pos.y,
+              radius: util.massToRadius(cell.mass / 2)
             },
             mergeCooldown: 500,
             //merged: false,
@@ -370,6 +380,11 @@ class Player {
           catapultForce: {
             speed: speed, dx: Math.cos(angle), dy: Math.sin(angle), friction: 0.8
           },
+          pre_split_data: {
+            x: cell.pos.x,
+            y: cell.pos.y,
+            radius: util.massToRadius(cell.mass / 2)
+          },
           mergeCooldown: 500,
           merge_able: false,
           virus: true,
@@ -385,6 +400,11 @@ class Player {
           throw: false,
           catapultForce: {
             speed: speed, dx: Math.cos(angle), dy: Math.sin(angle), friction: 0.8
+          },
+          pre_split_data: {
+            x: cell.pos.x,
+            y: cell.pos.y,
+            radius: util.massToRadius(cell.mass / 2)
           },
           mergeCooldown: 500,
           merge_able: false,

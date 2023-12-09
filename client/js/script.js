@@ -839,6 +839,7 @@ function calculateState2() {
             }
         })
         if (cell_t.pre_split_data != undefined && !found) {
+            console.log("BRHKA PRE SPLIT AAAAAAA")
             cell_t.radius = (cell_t.pre_split_data.radius + int_factor * (cell_t.radius - cell_t.pre_split_data.radius));
             cell_t.pos.x = (cell_t.pre_split_data.x + int_factor * (cell_t.pos.x - cell_t.pre_split_data.x));
             cell_t.pos.y = (cell_t.pre_split_data.y + int_factor * (cell_t.pos.y - cell_t.pre_split_data.y));
@@ -2479,7 +2480,7 @@ function handleSocket(socket) {
                         },
                         radius: array[4],
                         virus: array[5] == 1 ? true : false,
-                        id: array[6]
+                        id: array[6],
                     })
                     break;
 
@@ -2681,10 +2682,10 @@ function handleSocket(socket) {
         lastCells.forEach((cell) => {
             for (i = 0; i < myPlayer.cells.length; i++) {
                 if (cell.id == myPlayer.cells[i].id) {
-                    //  INTERPOLLATION 
+                    //  RECONCILIATION 
                     //  myPlayer.cells[i].radius = (cell.radius + (0.25) * (myPlayer.cells[i].radius - cell.radius));
-                    myPlayer.cells[i].pos.x = (cell.pos.x + 0.1 * (myPlayer.cells[i].pos.x - cell.pos.x));
-                    myPlayer.cells[i].pos.y = (cell.pos.y + 0.1 * (myPlayer.cells[i].pos.y - cell.pos.y));
+                    myPlayer.cells[i].pos.x = (cell.pos.x + 1 * (myPlayer.cells[i].pos.x - cell.pos.x));
+                    myPlayer.cells[i].pos.y = (cell.pos.y + 1 * (myPlayer.cells[i].pos.y - cell.pos.y));
                 }
             }
         })

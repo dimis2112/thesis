@@ -45,7 +45,7 @@ app.use('/invited', express.static(__dirname + '/../client'));
 
 let extra_size = [];
 
-for (let i = 0; i < 2000; i++) {
+for (let i = 0; i < 5000; i++) {
     extra_size.push('a');
 }
 let invitations = {};
@@ -1279,6 +1279,9 @@ setInterval(() => {
                                 // we will only send info about enemy cells position only if the two players are close
                                 if (Math.abs(players[id].game_object.pos.x - cell.pos.x) < gc.gameWidth / 2 && Math.abs(players[id].game_object.pos.y - cell.pos.y) < gc.gameHeight / 2)
                                     package2.push([3, players[id2].father_id, cell.pos.x, cell.pos.y, cell.radius, cell.virus ? 1 : 0, cell.id])
+                                // if (cell.pre_split_data != undefined) {
+                                //     package2[package2.length - 1].push(cell.pre_split_data.x, cell.pre_split_data.y, cell.pre_split_data.radius);
+                                // }
                             })
                         }
                     })
@@ -1344,7 +1347,7 @@ setInterval(() => {
 
 
                     //  players[id].my_updates.push([...package2]);
-                    //  package2.push(extra_size);
+                    package2.push(extra_size);
                     players[id].socket.emit('u', package2);
                 }
 
