@@ -315,35 +315,43 @@ function start_game() {
 
 //     }, 1000 / 100)
 // }
+let lastTime = Date.now();
+let now;
+let dt = 16;
 
 function animloop() {
     animationId = requestAnimationFrame(animloop);
 
-    sendInputs();
-    if (prediction_flag) {
+    now = Date.now();
 
-        updatePosition();
-    }
-    if (interpollation_flag) {
-        if (updates_received <= 0) {
-            calculateState2();
+    if (now - lastTime > dt) {
+        console.log(now - lastTime);
+        lastTime = now;
+        sendInputs();
+        if (prediction_flag) {
+
+            updatePosition();
         }
-        else {
+        if (interpollation_flag) {
+            if (updates_received <= 0) {
+                calculateState2();
+            }
+            else {
+                calculateState();
+            }
+        } else {
             calculateState();
         }
-    } else {
-        calculateState();
-    }
+        renderState();
+
+        if (game_over) {
+            cancelAnimationFrame(animationId);
+            c.restore();
+            updates_received = 2;
+            return;
+        }
 
 
-    renderState();
-
-
-    if (game_over) {
-        cancelAnimationFrame(animationId);
-        c.restore();
-        updates_received = 2;
-        return;
     }
 
 }
@@ -2032,8 +2040,8 @@ let myViruses = [];
 let myMasses = {};
 let score_words = [];
 
-let interpollation_flag = true;
-let prediction_flag = true;
+let interpollation_flag = false;
+let prediction_flag = false;
 let broadcast_ups = 60;
 
 let state = {
