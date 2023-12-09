@@ -78,7 +78,7 @@ window.onload = function () {
                     document.querySelector("#admin_name").innerHTML = data.room_admin;
                     //  if they press play 
                     document.querySelector("#play_invitation").addEventListener('click', () => {
-                        window.history.replaceState({}, null, window.origin);
+
                         //  connect to the socket
                         socket = io(window.location.href, {
                             transports: ["websocket"]
@@ -99,7 +99,7 @@ window.onload = function () {
                             border_hue: playerConfig.border_hue
 
                         }
-
+                        window.history.replaceState({}, null, window.origin);
                         console.log(data.room_id, packet, "AAAAAA");
                         socket.emit('join invitation', data.room_id, packet)
                     })
