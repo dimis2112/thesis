@@ -561,8 +561,9 @@ function updatePosition() {
     sumX = Math.floor(sumX);
     sumY = Math.floor(sumY);
 
-    pos.x = sumX;
-    pos.y = sumY;
+    pos.x = pos.x + 0.1 * (sumX - pos.x);
+    pos.y = pos.y + 0.1 * (sumY - pos.y);
+
 
 
 }
