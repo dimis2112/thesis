@@ -2650,17 +2650,31 @@ function handleSocket(socket) {
         })
 
 
-        let lastCells = [...myPlayer.cells];
+        let lastCells = JSON.parse(JSON.stringify(myPlayer.cells));
         myPlayer.cells = cells;
 
+
+
+
+
+        // do interpollation
+
+        // if (updates_received < 0) {
+
+        //     let time = Date.now();
+        //     let int_factor = (time - target_state.time) / (1000 / broadcast_ups);
+        //     if (int_factor > 1) {
+        //         int_factor = 1;
+        //     }
+        // }
 
         lastCells.forEach((cell) => {
             for (i = 0; i < myPlayer.cells.length; i++) {
                 if (cell.id == myPlayer.cells[i].id) {
                     //  INTERPOLLATION 
-                    // myPlayer.cells[i].radius = (cell.radius + 0.1 * (myPlayer.cells[i].radius - cell.radius));
-                    myPlayer.cells[i].pos.x = (cell.pos.x + 0.1 * (myPlayer.cells[i].pos.x - cell.pos.x));
-                    myPlayer.cells[i].pos.y = (cell.pos.y + 0.1 * (myPlayer.cells[i].pos.y - cell.pos.y));
+                    myPlayer.cells[i].radius = (cell.radius + 0.15 * (myPlayer.cells[i].radius - cell.radius));
+                    myPlayer.cells[i].pos.x = (cell.pos.x + 0.05 * (myPlayer.cells[i].pos.x - cell.pos.x));
+                    myPlayer.cells[i].pos.y = (cell.pos.y + 0.05 * (myPlayer.cells[i].pos.y - cell.pos.y));
                     //  myPlayer.cells[i].radius = (myPlayer.cells[i].radius + 0.0001 * (cell.radius - myPlayer.cells[i].radius));
                 }
             }
@@ -2713,7 +2727,7 @@ function handleSocket(socket) {
 
         if (updates_received < 0) {
             // set target state 
-            current_state = JSON.parse(JSON.stringify(target_state));;
+            current_state = JSON.parse(JSON.stringify(target_state));
 
             // target state 
             target_state.myEnemies = myEnemies;
