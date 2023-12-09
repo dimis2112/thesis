@@ -347,6 +347,7 @@ function animloop() {
         if (game_over) {
             cancelAnimationFrame(animationId);
             c.restore();
+            ever_changing_value;
             updates_received = 2;
             return;
         }
@@ -803,7 +804,7 @@ function calculateState2() {
         for (i = 0; i < myPlayer.cells.length; i++) {
             if (cell.id == myPlayer.cells[i].id) {
                 //  INTERPOLLATION 
-                myPlayer.cells[i].radius = cell.radius + int_factor * (myPlayer.cells[i].radius - cell.radius);
+                myPlayer.cells[i].radius = cell.radius + 0.3 * (myPlayer.cells[i].radius - cell.radius);
                 // myPlayer.cells[i].pos.x = (myPlayer.cells[i].pos.x + 0.05 * (cell.pos.x - myPlayer.cells[i].pos.x));
                 // myPlayer.cells[i].pos.y = (myPlayer.cells[i].pos.y + 0.05 * (cell.pos.y - myPlayer.cells[i].pos.y));
                 //  myPlayer.cells[i].radius = (myPlayer.cells[i].radius + 0.0001 * (cell.radius - myPlayer.cells[i].radius));
@@ -2682,8 +2683,8 @@ function handleSocket(socket) {
                 if (cell.id == myPlayer.cells[i].id) {
                     //  INTERPOLLATION 
                     //  myPlayer.cells[i].radius = (cell.radius + (0.25) * (myPlayer.cells[i].radius - cell.radius));
-                    myPlayer.cells[i].pos.x = (cell.pos.x + 0.05 * (myPlayer.cells[i].pos.x - cell.pos.x));
-                    myPlayer.cells[i].pos.y = (cell.pos.y + 0.05 * (myPlayer.cells[i].pos.y - cell.pos.y));
+                    myPlayer.cells[i].pos.x = (cell.pos.x + 0.1 * (myPlayer.cells[i].pos.x - cell.pos.x));
+                    myPlayer.cells[i].pos.y = (cell.pos.y + 0.1 * (myPlayer.cells[i].pos.y - cell.pos.y));
                 }
             }
         })
@@ -3113,6 +3114,7 @@ function handleSocket(socket) {
 
         gameContainer.style.display = 'none';
         game_over = true;
+        ever_changing_value = 0;
         userStatus = "ui";
         UI_container.style.display = 'block';
         hide_cards();
@@ -3158,6 +3160,7 @@ function handleSocket(socket) {
         document.querySelector("#countDownTimer").style.display = 'none';
 
         game_over = true;
+        ever_changing_value = 0;
         gameContainer.style.display = 'none';
         userStatus = "ui";
         UI_container.style.display = 'block';
