@@ -407,7 +407,7 @@ function sendInputs() {
                 })
                 if (input.name == 'split') {
                     if (prediction_flag) {
-                        split();
+                        //split();
                     }
                 }
 
