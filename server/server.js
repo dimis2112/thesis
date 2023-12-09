@@ -899,8 +899,12 @@ setInterval(() => {
                                         //let pos = { ...players[id2].game_object.cells[j].pos }
 
                                         if (players[id2].game_object.cells.length > 1) {
-                                            players[id2].game_object.cells.splice(j, 1);
-                                            j -= 1;
+                                            setTimeout(() => {
+
+                                                players[id2].game_object.cells.splice(j, 1);
+                                                j -= 1;
+                                            }, 0)
+
                                         }
 
                                         else {
@@ -909,8 +913,11 @@ setInterval(() => {
 
                                             if (players[id2].roomId == 'liveWorld') {
 
-                                                players[id2].game_object.cells.splice(j, 1);
-                                                j -= 1;
+                                                setTimeout(() => {
+
+                                                    players[id2].game_object.cells.splice(j, 1);
+                                                    j -= 1;
+                                                }, 0)
                                                 if (!players[id2].bot && !players[id2].game_object.bot) {
                                                     // an den einai bot , steile defeated kanonika.
                                                     if (players[id2].game_object != null)

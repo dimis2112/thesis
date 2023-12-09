@@ -240,11 +240,11 @@ class Player {
         // osa cells exoun throw:true tha ektoksebontai
 
         // calculate angle
-        let speed = 40;
+        let speed = 30;
         let angle = Math.atan2(this.target.y + this.pos.y - cell.pos.y, this.target.x + this.pos.x - cell.pos.x);
         let dx = Math.cos(angle);
         let dy = Math.sin(angle);
-        let friction = 0.8;
+        let friction = 0.6;
 
         if (cell.virus) {
           newCells.push({
@@ -343,7 +343,7 @@ class Player {
     cell.radius /= 4;
     cell.mass /= 4;
 
-    let speed = 30;
+    let speed = 20;
     let angle = Math.PI / 4;
     let dx = Math.cos(angle);
     let dy = Math.sin(angle);
