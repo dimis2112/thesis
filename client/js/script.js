@@ -794,15 +794,33 @@ function calculateState2() {
 
     state_temp.playerConfig.visionCenter.x = playerConfig.visionCenter.x;
     state_temp.playerConfig.visionCenter.y = playerConfig.visionCenter.y;
+
+
+
+
+
+    lastCells.forEach((cell) => {
+        for (i = 0; i < myPlayer.cells.length; i++) {
+            if (cell.id == myPlayer.cells[i].id) {
+                //  INTERPOLLATION 
+                myPlayer.cells[i].radius = cell.radius + int_factor * (myPlayer.cells[i].radius - cell.radius);
+                // myPlayer.cells[i].pos.x = (myPlayer.cells[i].pos.x + 0.05 * (cell.pos.x - myPlayer.cells[i].pos.x));
+                // myPlayer.cells[i].pos.y = (myPlayer.cells[i].pos.y + 0.05 * (cell.pos.y - myPlayer.cells[i].pos.y));
+                //  myPlayer.cells[i].radius = (myPlayer.cells[i].radius + 0.0001 * (cell.radius - myPlayer.cells[i].radius));
+            }
+        }
+    })
     state_temp.myPlayer = JSON.parse(JSON.stringify(myPlayer));
-
-
+    lastCells = JSON.parse(JSON.stringify(myPlayer.cells));
 
     let enemy_cells = JSON.parse(JSON.stringify(target_state_r.myEnemies));
     let viruses = JSON.parse(JSON.stringify(target_state_r.myViruses));
     //  let myCells = JSON.parse(JSON.stringify(target_state_r.myPlayer.cells));
 
     let found = false;
+
+
+
 
 
     enemy_cells.forEach((cell_t) => {
@@ -2104,7 +2122,7 @@ let playerConfig = {
 let foodConfig = {
     lineWidth: 5
 };
-
+let lastCells;
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 let ping_array = [];
@@ -2650,7 +2668,7 @@ function handleSocket(socket) {
         })
 
 
-        let lastCells = JSON.parse(JSON.stringify(myPlayer.cells));
+        lastCells = JSON.parse(JSON.stringify(myPlayer.cells));
         myPlayer.cells = cells;
 
 
@@ -2659,23 +2677,13 @@ function handleSocket(socket) {
 
         // do interpollation
 
-        // if (updates_received < 0) {
-
-        //     let time = Date.now();
-        //     let int_factor = (time - target_state.time) / (1000 / broadcast_ups);
-        //     if (int_factor > 1) {
-        //         int_factor = 1;
-        //     }
-        // }
-
         lastCells.forEach((cell) => {
             for (i = 0; i < myPlayer.cells.length; i++) {
                 if (cell.id == myPlayer.cells[i].id) {
                     //  INTERPOLLATION 
-                    myPlayer.cells[i].radius = (cell.radius + 0.15 * (myPlayer.cells[i].radius - cell.radius));
+                    //  myPlayer.cells[i].radius = (cell.radius + (0.25) * (myPlayer.cells[i].radius - cell.radius));
                     myPlayer.cells[i].pos.x = (cell.pos.x + 0.05 * (myPlayer.cells[i].pos.x - cell.pos.x));
                     myPlayer.cells[i].pos.y = (cell.pos.y + 0.05 * (myPlayer.cells[i].pos.y - cell.pos.y));
-                    //  myPlayer.cells[i].radius = (myPlayer.cells[i].radius + 0.0001 * (cell.radius - myPlayer.cells[i].radius));
                 }
             }
         })

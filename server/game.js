@@ -439,11 +439,11 @@ class Player {
     this.cells.forEach((cell) => {
       if (cell.virus) {
 
-        let speed = 40;
+        let speed = 30;
         let angle = Math.atan2(this.target.y + this.pos.y - cell.pos.y, this.target.x + this.pos.x - cell.pos.x);
         let dx = Math.cos(angle);
         let dy = Math.sin(angle);
-        let friction = 0.8;
+        let friction = 0.6;
         let catapultForce = {
           speed: speed, dx: dx, dy: dy, friction: friction
         };
