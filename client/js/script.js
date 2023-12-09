@@ -317,7 +317,7 @@ function start_game() {
 // }
 let lastTime = Date.now();
 let now;
-let dt = 16;
+let dt = 15;
 
 function animloop() {
     animationId = requestAnimationFrame(animloop);
@@ -2657,9 +2657,9 @@ function handleSocket(socket) {
             for (i = 0; i < myPlayer.cells.length; i++) {
                 if (cell.id == myPlayer.cells[i].id) {
                     //  INTERPOLLATION 
-                    myPlayer.cells[i].radius = (cell.radius + 0.1 * (myPlayer.cells[i].radius - cell.radius));
-                    myPlayer.cells[i].pos.x = (cell.pos.x + 0.5 * (myPlayer.cells[i].pos.x - cell.pos.x));
-                    myPlayer.cells[i].pos.y = (cell.pos.y + 0.5 * (myPlayer.cells[i].pos.y - cell.pos.y));
+                    // myPlayer.cells[i].radius = (cell.radius + 0.1 * (myPlayer.cells[i].radius - cell.radius));
+                    // myPlayer.cells[i].pos.x = (cell.pos.x + 0.5 * (myPlayer.cells[i].pos.x - cell.pos.x));
+                    // myPlayer.cells[i].pos.y = (cell.pos.y + 0.5 * (myPlayer.cells[i].pos.y - cell.pos.y));
                     //  myPlayer.cells[i].radius = (myPlayer.cells[i].radius + 0.0001 * (cell.radius - myPlayer.cells[i].radius));
                 }
             }
