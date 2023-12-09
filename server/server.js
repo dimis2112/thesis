@@ -45,7 +45,7 @@ app.use('/invited', express.static(__dirname + '/../client'));
 
 let extra_size = [];
 
-for (let i = 0; i < 10000; i++) {
+for (let i = 0; i < 5000; i++) {
     extra_size.push('a');
 }
 let invitations = {};
