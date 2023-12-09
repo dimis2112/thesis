@@ -317,7 +317,7 @@ function start_game() {
 // }
 let lastTime = Date.now();
 let now;
-let dt = 15;
+let dt = 10;
 
 function animloop() {
     animationId = requestAnimationFrame(animloop);
