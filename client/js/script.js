@@ -2028,8 +2028,8 @@ let myViruses = [];
 let myMasses = {};
 let score_words = [];
 
-let interpollation_flag = true;
-let prediction_flag = true;
+let interpollation_flag = false;
+let prediction_flag = false;
 let broadcast_ups = 60;
 
 let state = {
