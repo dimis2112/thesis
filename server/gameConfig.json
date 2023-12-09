@@ -7,7 +7,7 @@
 	"maxTotalMass": 300,
 	"maxMassReachedTicks": 500,
 
-	"numOfFoods": 100,
+	"numOfFoods": 500,
 	"roomGameDuration": 90,
 	"virusRadius": 100,
 	"numOfViruses": 10,
@@ -20,6 +20,6 @@
 
 	"betterPosition": true,
 
-	"broadcast_ups": 60,
+	"broadcast_ups": 10,
 	"gameWorld_ups": 60
 }

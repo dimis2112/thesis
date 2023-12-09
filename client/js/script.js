@@ -782,10 +782,11 @@ function calculateState2() {
 
     // do interpollation
 
-    let int_factor = (time - target_state_r.time) / (1000 / broadcast_ups);
-    if (int_factor > 1) {
-        int_factor = 1;
-    }
+    // let int_factor = (time - target_state_r.time) / (1000 / broadcast_ups);
+    let int_factor = (time - target_state_r.time) / (target_state_r.time - current_state.time);
+    // if (int_factor > 1) {
+    //     int_factor = 1;
+    // }
 
     console.log("EKTYPWSA", int_factor);
 
@@ -804,7 +805,7 @@ function calculateState2() {
         for (i = 0; i < myPlayer.cells.length; i++) {
             if (cell.id == myPlayer.cells[i].id) {
                 //  INTERPOLLATION 
-                myPlayer.cells[i].radius = cell.radius + 0.3 * (myPlayer.cells[i].radius - cell.radius);
+                myPlayer.cells[i].radius = cell.radius + 0.2 * (myPlayer.cells[i].radius - cell.radius);
                 // myPlayer.cells[i].pos.x = (myPlayer.cells[i].pos.x + 0.05 * (cell.pos.x - myPlayer.cells[i].pos.x));
                 // myPlayer.cells[i].pos.y = (myPlayer.cells[i].pos.y + 0.05 * (cell.pos.y - myPlayer.cells[i].pos.y));
                 //  myPlayer.cells[i].radius = (myPlayer.cells[i].radius + 0.0001 * (cell.radius - myPlayer.cells[i].radius));
@@ -2684,8 +2685,8 @@ function handleSocket(socket) {
                 if (cell.id == myPlayer.cells[i].id) {
                     //  RECONCILIATION 
                     //  myPlayer.cells[i].radius = (cell.radius + (0.25) * (myPlayer.cells[i].radius - cell.radius));
-                    myPlayer.cells[i].pos.x = (cell.pos.x + 1 * (myPlayer.cells[i].pos.x - cell.pos.x));
-                    myPlayer.cells[i].pos.y = (cell.pos.y + 1 * (myPlayer.cells[i].pos.y - cell.pos.y));
+                    myPlayer.cells[i].pos.x = (cell.pos.x + 0.1 * (myPlayer.cells[i].pos.x - cell.pos.x));
+                    myPlayer.cells[i].pos.y = (cell.pos.y + 0.1 * (myPlayer.cells[i].pos.y - cell.pos.y));
                 }
             }
         })
@@ -2960,8 +2961,13 @@ function handleSocket(socket) {
                 // console.log("to id pou erxetai", id);
                 // invitation_id = [...id];
                 link = window.location + "invited/" + "?invitation_id=" + id;
-                document.querySelector("#link-p").innerText = "";
-                document.querySelector("#link-p").innerText = link;
+                // document.querySelector("#link-p").innerText = "";
+                // document.querySelector("#link-p").innerText = link;
+                document.querySelector("#clipboard-btn").addEventListener('click', () => {
+                    console.log("eginaa")
+                    navigator.clipboard.writeText(link);
+                })
+
 
             });
 

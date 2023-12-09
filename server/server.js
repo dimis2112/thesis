@@ -708,6 +708,7 @@ setInterval(() => {
                             foods.splice(foodIndex, 1);
 
 
+
                             // cell.radius = Math.sqrt(sum / Math.PI) + 0.0005 * Math.sqrt(sum / Math.PI); //util.massToRadius(cell.mass);
 
                             if (players[id].game_object.totalMass < gc.maxTotalMass) {
@@ -772,20 +773,20 @@ setInterval(() => {
 
 
                 //check for masses collisions 
-                players[id].game_object.cells.forEach((cell) => {
-                    masses.forEach((mass, massIndex) => {
+                // players[id].game_object.cells.forEach((cell) => {
+                //     masses.forEach((mass, massIndex) => {
 
-                        if (Math.hypot(cell.pos.x - mass.pos.x, cell.pos.y - mass.pos.y) < cell.radius) {
-                            //On Collision with mass
-                            masses.splice(massIndex, 1);
-                            masses_updates.push([8, 2, mass.id]);
-                            let sum = Math.PI * cell.radius * cell.radius + 2 * Math.PI * mass.radius * mass.radius;
+                //         if (Math.hypot(cell.pos.x - mass.pos.x, cell.pos.y - mass.pos.y) < cell.radius) {
+                //             //On Collision with mass
+                //             masses.splice(massIndex, 1);
+                //             masses_updates.push([8, 2, mass.id]);
+                //             let sum = Math.PI * cell.radius * cell.radius + 2 * Math.PI * mass.radius * mass.radius;
 
-                            cell.radius = Math.sqrt(sum / Math.PI) + 0.0005 * Math.sqrt(sum / Math.PI); //util.massToRadius(cell.mass);
-                            cell.mass = cell.radius;
-                        }
-                    })
-                })
+                //             cell.radius = Math.sqrt(sum / Math.PI) + 0.0005 * Math.sqrt(sum / Math.PI); //util.massToRadius(cell.mass);
+                //             cell.mass = cell.radius;
+                //         }
+                //     })
+                // })
 
 
 
@@ -828,8 +829,11 @@ setInterval(() => {
 
 
                                                 // afairoume to fagomeno kyttaro apo to array
-                                                players[id2].game_object.cells.splice(j, 1);
-                                                j -= 1;
+                                                setTimeout(() => {
+
+                                                    players[id2].game_object.cells.splice(j, 1);
+                                                    j -= 1;
+                                                }, 0)
                                             }
                                         }
                                     }
@@ -1300,14 +1304,14 @@ setInterval(() => {
 
 
                 }
-
+                foods_born.forEach((food) => {
+                    package2.push([6, food])
+                })
                 foods_eaten.forEach((food) => {
                     package2.push([5].concat(food))
                 });
 
-                foods_born.forEach((food) => {
-                    package2.push([6, food])
-                })
+
 
                 virus_updates.forEach((virus) => {
                     package2.push([7].concat(virus))
