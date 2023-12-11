@@ -539,7 +539,7 @@ class Food {
     this.id = util.makeid(6);
     this.hue = util.randomColor();
     this.radius = Math.floor(Math.random() * (10 - 5) + 5);
-    this.mass = this.radius //Math.random() * (5 - 3) + 3;
+    this.mass = 1 //this.radius //Math.random() * (5 - 3) + 3;
     this.pos = (gc.betterPosition) ? util.betterPosition(arrayOfFoods, this.radius) : util.randomPosition();// util.randomPosition();
   }
 

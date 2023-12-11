@@ -423,7 +423,7 @@ function sendInputs() {
     socket.emit("player input", input_packet);
 
 }
-let local_target;
+let local_target = { x: 0, y: 0 };
 // na energopoeitai kati san local cells meta to split
 
 
@@ -2168,8 +2168,10 @@ function draw_first_frame() {
     c.translate(canvas.width / 2, canvas.height / 2);
 
     //  CALCULATE ZOOM FACTOR ACCORDING TO HOW MUCH YOUR CELLS GREW
-    newzoom = -0.0013875 * state.myPlayer.totalRadius + 1.0555;
+    newzoom = -0.0013875 * state.myPlayer.totalRadius + 2.0555;
     scaleFactor = scaleFactor + 0.1 * (newzoom - scaleFactor);
+
+
     c.scale(scaleFactor, scaleFactor);
     c.translate(-state.playerConfig.visionCenter.x, -state.playerConfig.visionCenter.y);
     //drawBackgroundGrid();
@@ -2308,7 +2310,7 @@ function handleSocket(socket) {
         userStatus = "playing";
         start_target_interval();
         enable_game_events();
-        draw_first_frame();
+        //  draw_first_frame();
         animloop();
 
         // to start_animation() xreiazetai na prostheseis pragmata gia na kanei swsta to game-over
@@ -2361,8 +2363,8 @@ function handleSocket(socket) {
         //  START THE ANIMATION LOOP
         game_over = false;
         userStatus = "playing";
-        start_target_interval();
-        clearState();
+        //  start_target_interval();
+        //  clearState();
         enable_game_events();
         animloop();
 
@@ -3250,6 +3252,9 @@ function disable_game_events() {
 
 function handleMouseMove(event) {
     //  // console.log("ΣΤΕΙΛΕ");
+    local_target.x = event.clientX - canvas.width / 2;
+    local_target.y = event.clientY - canvas.width / 2;
+
     target.x = event.clientX - canvas.width / 2;
     target.y = event.clientY - canvas.height / 2;
 

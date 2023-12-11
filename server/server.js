@@ -714,7 +714,7 @@ setInterval(() => {
                             if (players[id].game_object.totalMass < gc.maxTotalMass) {
                                 let res = gc.maxTotalMass - players[id].game_object;
 
-                                let increase = food.radius * 0.2;
+                                let increase = food.mass //food.radius * 0.2;
 
                                 if (increase >= res) {
                                     cell.radius += res;
@@ -806,6 +806,10 @@ setInterval(() => {
 
                             for (let j = 0; j < players[id2].game_object.cells.length; j++) {
                                 for (k = 0; k < players[id].game_object.cells.length; k++) {
+
+                                    if (j < 0 || j > players[id2].game_object.cells.length - 1) {
+                                        continue;
+                                    }
                                     // If the 2 itterators look at the same cell do nothing
                                     if (k === j || k >= players[id2].game_object.cells.length || j >= players[id].game_object.cells.length || j < 0 || k < 0) {
                                         continue;
@@ -817,7 +821,7 @@ setInterval(() => {
 
                                         if (distance < players[id].game_object.cells[k].radius || distance < players[id2].game_object.cells[j].radius && players[id].game_object.cells[k].mergeCooldown == 0 && players[id2].game_object.cells[j].mergeCooldown == 0) {
                                             // ginetai overlap metaksy kyttarwn
-                                            if (players[id].game_object.cells[k].mass >= players[id2].game_object.cells[j].mass && players[id].game_object.cells[k].mergeCooldown == 0 && players[id2].game_object.cells[j].mergeCooldown == 0) {
+                                            if (players[id].game_object.cells[k].mass >= players[id2].game_object.cells[j].mass && players[id].game_object.cells[k].mergeCooldown <= 0 && players[id2].game_object.cells[j].mergeCooldown <= 0) {
                                                 // to megalytero kyttaro trwei to mikrotero
                                                 players[id].game_object.cells[k].mass += players[id2].game_object.cells[j].mass;
                                                 players[id].game_object.cells[k].radius += players[id].game_object.cells[j].radius;
@@ -829,11 +833,9 @@ setInterval(() => {
 
 
                                                 // afairoume to fagomeno kyttaro apo to array
-                                                setTimeout(() => {
+                                                players[id2].game_object.cells.splice(j, 1);
+                                                j -= 1;
 
-                                                    players[id2].game_object.cells.splice(j, 1);
-                                                    j -= 1;
-                                                }, 0)
                                             }
                                         }
                                     }
@@ -855,6 +857,10 @@ setInterval(() => {
                                     continue;
                                 }
 
+                                if (j < 0 || j > players[id2].game_object.cells.length - 1) {
+                                    continue;
+                                }
+
                                 let distance = Math.hypot(players[id].game_object.cells[k].pos.x - players[id2].game_object.cells[j].pos.x,
                                     players[id].game_object.cells[k].pos.y - players[id2].game_object.cells[j].pos.y);
 
@@ -862,7 +868,6 @@ setInterval(() => {
                                     // ginetai overlap metaksy kyttarwn
                                     if (players[id].game_object.cells[k].mass > players[id2].game_object.cells[j].mass) {
                                         // to megalytero kyttaro trwei to mikrotero
-                                        //players[id].game_object.cells[k].mass += players[id2].game_object.cells[j].mass;
 
                                         // elegxoume thn synolikh maza na menei katw apo gc.maxTotalMass
                                         if (players[id].game_object.totalMass < gc.maxTotalMass) {
@@ -877,8 +882,6 @@ setInterval(() => {
                                                 players[id].game_object.cells[k].radius += increase;
                                             }
                                         }
-                                        //players[id].game_object.cells[k].radius = util.massToRadius(players[id].game_object.cells[k].mass);
-
                                         // an to fagomeno kyttaro eixe virus tote kane to virus split
                                         if (players[id2].game_object.cells[j].virus) {
 
@@ -898,16 +901,12 @@ setInterval(() => {
 
                                         // afairoume to fagomeno kyttaro apo to array
 
-
-
-                                        //let pos = { ...players[id2].game_object.cells[j].pos }
-
                                         if (players[id2].game_object.cells.length > 1) {
-                                            setTimeout(() => {
 
-                                                players[id2].game_object.cells.splice(j, 1);
-                                                j -= 1;
-                                            }, 0)
+
+                                            players[id2].game_object.cells.splice(j, 1);
+                                            j -= 1;
+
 
                                         }
 
@@ -917,11 +916,11 @@ setInterval(() => {
 
                                             if (players[id2].roomId == 'liveWorld') {
 
-                                                setTimeout(() => {
 
-                                                    players[id2].game_object.cells.splice(j, 1);
-                                                    j -= 1;
-                                                }, 0)
+
+                                                players[id2].game_object.cells.splice(j, 1);
+                                                j -= 1;
+
                                                 if (!players[id2].bot && !players[id2].game_object.bot) {
                                                     // an den einai bot , steile defeated kanonika.
                                                     if (players[id2].game_object != null)
