@@ -20,6 +20,6 @@
 
 	"betterPosition": true,
 
-	"broadcast_ups": 60,
+	"broadcast_ups": 80,
 	"gameWorld_ups": 60
 }
