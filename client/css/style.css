@@ -271,7 +271,7 @@ body {
 	display: none;
 	border: black 1px solid;
 	border-radius: 6px;
-	outline-color: var(--green);
+	outline: var(--green) 5px;
 	outline-style: outset;
 	margin: 0.5rem;
 }

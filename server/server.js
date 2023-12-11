@@ -55,7 +55,7 @@ let players = {};
 let rooms = {
     liveWorld: {
         roomName: "liveWorld",
-        //players: game.create_bots(1, "liveWorld"),
+        // players: game.create_bots(3, "liveWorld"),
         players: {},
         foods: game.createFoods(),
         active: true,
@@ -81,9 +81,10 @@ let rooms = {
 
 
 
-if (process.env.PORT == 3001) {
-    game.load_bot_rooms(rooms, 200);
+if (process.env.PORT == 3000) {
+    game.load_bot_rooms(rooms, 130);
 }
+//game.load_bot_rooms(rooms, 50);
 
 // konta sto 380 einai to orio , gia parapanw de ksekinaei kan
 // game.load_bot_rooms(rooms, 50);
@@ -935,11 +936,13 @@ setInterval(() => {
 
 
                                                 // make the player ghost
+                                                if (!players[id2].bot && !players[id2].game_object.bot) {
 
-                                                players[id2].game_object.ghost = true;
-                                                players[id2].game_object.ghost_start = Date.now();
-                                                players[id2].socket.emit('you are ghost');
-                                                io.to(roomId).emit('he is ghost', players[id2].father_id);
+                                                    players[id2].game_object.ghost = true;
+                                                    players[id2].game_object.ghost_start = Date.now();
+                                                    players[id2].socket.emit('you are ghost');
+                                                    io.to(roomId).emit('he is ghost', players[id2].father_id);
+                                                }
 
 
 

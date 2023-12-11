@@ -611,7 +611,11 @@ function load_bot_rooms(rooms, num) {
         playerName: "QQQQQQQQQQQQ",
         admin_id: "QQQQQQQQQqQ"
       },
-      masses: []
+      masses: [],
+      foods_eaten: [],
+      foods_born: [],
+      virus_updates: [],
+      masses_updates: []
     }
   }
 
