@@ -562,8 +562,8 @@ function updatePosition() {
     sumX = Math.floor(sumX);
     sumY = Math.floor(sumY);
 
-    // pos.x = pos.x + 0.1 * (sumX - pos.x);
-    // pos.y = pos.y + 0.1 * (sumY - pos.y);
+    pos.x = pos.x + 0.1 * (sumX - pos.x);
+    pos.y = pos.y + 0.1 * (sumY - pos.y);
 
 
 
@@ -2063,7 +2063,7 @@ let myMasses = {};
 let score_words = [];
 
 let interpollation_flag = true;
-let prediction_flag = false;
+let prediction_flag = true;
 let broadcast_ups = 60;
 
 let state = {
@@ -2439,10 +2439,10 @@ function handleSocket(socket) {
                     //  INTERPOLATION FOR THE VALUE CHANGES OF VISION CENTER
                     let x = array[1];
                     let y = array[2];
-                    //  if (!prediction_flag) {
-                    playerConfig.visionCenter.x = playerConfig.visionCenter.x + 0.1 * (x - playerConfig.visionCenter.x);
-                    playerConfig.visionCenter.y = playerConfig.visionCenter.y + 0.1 * (y - playerConfig.visionCenter.y);
-                    // }
+                    if (!prediction_flag) {
+                        playerConfig.visionCenter.x = playerConfig.visionCenter.x + 1 * (x - playerConfig.visionCenter.x);
+                        playerConfig.visionCenter.y = playerConfig.visionCenter.y + 1 * (y - playerConfig.visionCenter.y);
+                    }
 
                     //  playerConfig.visionCenter.x = visionCenter.x;
                     //  playerConfig.visionCenter.y = visionCenter.y;
