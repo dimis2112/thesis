@@ -6,6 +6,7 @@
 	"initialRadius": 120,
 	"maxTotalMass": 300,
 	"maxMassReachedTicks": 500,
+	"mergeCooldown": 500,
 
 	"numOfFoods": 200,
 	"roomGameDuration": 90,
@@ -20,6 +21,7 @@
 
 	"betterPosition": true,
 
-	"broadcast_ups": 20,
-	"gameWorld_ups": 60
+	"broadcast_ups": 60,
+	"gameWorld_ups": 60,
+	"num_of_bot_rooms": 300
 }

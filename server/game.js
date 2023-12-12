@@ -260,7 +260,7 @@ class Player {
               y: cell.pos.y,
               radius: util.massToRadius(cell.mass / 2)
             },
-            mergeCooldown: 500,
+            mergeCooldown: gc.mergeCooldown,
             //merged: false,
             merge_able: false,
             virus: false,
@@ -275,7 +275,7 @@ class Player {
             catapultForce: {
               speed: 0, dx: 0, dy: 0, friction: 0
             },
-            mergeCooldown: 500,
+            mergeCooldown: gc.mergeCooldown,
             // merged: false,
             merge_able: false,
             virus: true,
@@ -296,7 +296,7 @@ class Player {
               y: cell.pos.y,
               radius: util.massToRadius(cell.mass / 2)
             },
-            mergeCooldown: 500,
+            mergeCooldown: gc.mergeCooldown,
             //merged: false,
             merge_able: false,
             virus: false,
@@ -311,7 +311,7 @@ class Player {
             catapultForce: {
               speed: 0, dx: 0, dy: 0, friction: 0
             },
-            mergeCooldown: 500,
+            mergeCooldown: gc.mergeCooldown,
             // merged: false,
             merge_able: false,
             virus: false,
@@ -605,7 +605,8 @@ function load_bot_rooms(rooms, num) {
       active: true,
       freeToJoin: false,
       roomId: room_name,
-      viruses: createViruses(),
+      // viruses: createViruses(),
+      viruses: [],
       state: "playing",
       admin: {
         playerName: "QQQQQQQQQQQQ",
