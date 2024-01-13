@@ -36,6 +36,8 @@ class Player {
       foodsEaten: 0,
       cellsEaten: 0,
       virusEaten: 0,
+      score_reductions: [],
+      score_increases: [],
 
 
       eliminations: 0,
@@ -43,6 +45,7 @@ class Player {
       timeStayedAlive: 0,
       highestPosition: 100
     }
+    this.totalScore = 0;
     this.foodsEaten = 0;
     this.socket = null;
     this.roomName = null;
@@ -68,7 +71,15 @@ class Player {
     totalScore += this.score.cellsEaten * gc.scoreFromCell;
     totalScore += this.maxMassReachedTimes * gc.scoreFromMaxMass;
 
+    this.score.score_increases.forEach((value) => {
+      totalScore += value;
+    })
 
+    this.score.score_reductions.forEach((value) => {
+      totalScore -= value;
+    })
+
+    this.totalScore = totalScore;
     return totalScore;
 
 

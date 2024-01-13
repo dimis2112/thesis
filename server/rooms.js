@@ -60,10 +60,12 @@ function roomGameResults(room) {
     array.push(object);
   });
 
-  array.sort((a, b) => { a.totalScore - b.totalScore });
+  let sorted_array = array.sort((a, b) => { b.totalScore - a.totalScore });
+  //sorted_array = sorted_array.reverse();
 
+  console.log(sorted_array, array);
 
-  return array;
+  return sorted_array;
 }
 
 

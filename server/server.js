@@ -32,15 +32,17 @@ app.use("/invited", (req, res, next) => {
     next();
 });
 
+app.use('/invited', express.static(__dirname + '/../client'));
+
 app.get("/invited_player", (req, res) => {
-    console.log("ti stelnei to invited player", req.query);
-    console.log(invitations);
-    console.log(invitations[req.query.invitation_id]);
+    // console.log("ti stelnei to invited player", req.query);
+    // console.log(invitations);
+    // console.log(invitations[req.query.invitation_id]);
     res.send(invitations[req.query.invitation_id]);
 
 })
 
-app.use('/invited', express.static(__dirname + '/../client'));
+
 
 
 let extra_size = [];
@@ -48,6 +50,18 @@ let extra_size = [];
 // for (let i = 0; i < 2000; i++) {
 //     extra_size.push('a');
 // }
+
+let server_settings = {
+    latency_flag: false,
+    ms: gc.broadcast_ups,
+    interpollation_flag: true,
+    prediction_flag: false,
+    score_words_flag: true
+}
+
+let serverInterval;
+
+let broadcastInterval = null;
 let invitations = {};
 
 let players = {};
@@ -64,8 +78,8 @@ let rooms = {
         viruses: game.createViruses(),
         state: "playing",
         admin: {
-            playerName: "QQQQQQQQQQQQ",
-            admin_id: "QQQQQQQQQqQ"
+            playerName: "-",
+            admin_id: "-"
         },
         masses: [],
 
@@ -110,12 +124,27 @@ io.on('connection', function (client) {
         my_updates: [],
         my_update_ticks: 0,
 
-        // foods_eaten: [],
-        // foods_born: [],
-        // virus_updates: [],
-        // masses_updates: []
+
     }
 
+    client.on("server_settings", (obj) => {
+        console.log(obj);
+        server_settings.latency_flag = obj.latency_flag;
+        server_settings.ups = obj.ms;
+
+
+        server_settings.interpollation_flag = obj.interpollation_flag;
+        server_settings.prediction_flag = obj.prediction_flag;
+        server_settings.score_words_flag = obj.score_words_flag;
+
+        // set interval for broadcast ups 
+
+
+        clearInterval(broadcastInterval);
+
+        broadcastInterval = setInterval(broadcast_updates, 1000 / server_settings.ups)
+
+    })
 
 
     client.on("player style update", (packet) => {
@@ -185,7 +214,11 @@ io.on('connection', function (client) {
             viruses: rooms.liveWorld.viruses,
             foods: rooms.liveWorld.foods,
             enemies: enemy_players,
-            broadcast_ups: gc.broadcast_ups
+            broadcast_ups: gc.broadcast_ups,
+
+            interpollation_flag: server_settings.interpollation_flag,
+            prediction_flag: server_settings.prediction_flag,
+            score_words_flag: server_settings.score_words_flag
         }
 
         client.emit('init', package);
@@ -193,7 +226,7 @@ io.on('connection', function (client) {
 
 
     client.on('createRoomGame', (packet, roomName, roomPassword) => {
-        console.log("mou hrthe room")
+        //console.log("mou hrthe room")
 
         //add name to players
         players[client.id].name = packet.name;
@@ -400,7 +433,11 @@ io.on('connection', function (client) {
                 enemies: roomsJs.getRoomEnemies(room, client.id),
                 foods: room.foods,
                 broadcast_ups: gc.broadcast_ups,
-                enemy_cells: []
+                enemy_cells: [],
+
+                interpollation_flag: server_settings.interpollation_flag,
+                prediction_flag: server_settings.prediction_flag,
+                score_words_flag: server_settings.score_words_flag
             }
 
             package.viruses = room.viruses;
@@ -642,9 +679,7 @@ io.on('connection', function (client) {
 
 });
 
-
-setInterval(() => {
-
+function game_world_update() {
 
     Object.keys(rooms).forEach((roomId) => {
 
@@ -672,9 +707,9 @@ setInterval(() => {
             //     players[id].game_object.updatePosition();
             // })
 
+
             // check each cell collision with other entities
             Object.keys(players).forEach((id) => {
-
 
                 let score_words = [];
                 // if player is a bot then call generate inputs 
@@ -874,7 +909,7 @@ setInterval(() => {
                                         if (players[id].game_object.totalMass < gc.maxTotalMass) {
                                             let res = gc.maxTotalMass - players[id].game_object.totalMass;
 
-                                            let increase = players[id2].game_object.cells[j].radius;
+                                            let increase = Math.floor(0.2 * players[id2].game_object.cells[j].radius);
 
                                             if (increase >= res) {
                                                 players[id].game_object.cells[k].radius += res;
@@ -939,9 +974,19 @@ setInterval(() => {
                                                 if (!players[id2].bot && !players[id2].game_object.bot) {
 
                                                     players[id2].game_object.ghost = true;
+                                                    players[id2].game_object.cells[j].virus = false;
                                                     players[id2].game_object.ghost_start = Date.now();
                                                     players[id2].socket.emit('you are ghost');
                                                     io.to(roomId).emit('he is ghost', players[id2].father_id);
+
+                                                    // ghost looses score 
+                                                    let reduction = Math.floor(0.2 * players[id2].game_object.totalScore);
+                                                    players[id2].game_object.score.score_reductions.push(reduction);
+
+                                                    // winner gains score 
+                                                    players[id].game_object.score.score_increases.push(reduction);
+                                                    score_words.pop();
+                                                    score_words.push([10, 5, players[id].game_object.cells[k].pos.x, players[id].game_object.cells[k].pos.y, reduction]);
                                                 }
 
 
@@ -972,6 +1017,8 @@ setInterval(() => {
 
 
                 }
+
+
                 // update total mass 
                 players[id].game_object.updateMass();
 
@@ -985,7 +1032,7 @@ setInterval(() => {
                         // aykshse to times kata 1 
                         players[id].game_object.maxMassReachedTimes += 1;
 
-                        // ta ticks ginontai ksana 500 
+                        // ta ticks ginontai ksana max 
                         players[id].game_object.maxMassReachedTicks = gc.maxMassReachedTicks;
                     }
                 }
@@ -1009,17 +1056,17 @@ setInterval(() => {
 
 
             //update masses
-            rooms[roomId].masses.forEach((mass) => {
-                if (mass.catapultForce) {
-                    mass.update();
-                    if (mass.new_born) {
-                        masses_updates.push([8, 1, mass.id, mass.hue, mass.radius, mass.pos.x, mass.pos.y])
-                        mass.new_born = false;
+            // rooms[roomId].masses.forEach((mass) => {
+            //     if (mass.catapultForce) {
+            //         mass.update();
+            //         if (mass.new_born) {
+            //             masses_updates.push([8, 1, mass.id, mass.hue, mass.radius, mass.pos.x, mass.pos.y])
+            //             mass.new_born = false;
 
-                    }
-                    masses_updates.push([8, 0, mass.id, mass.pos.x, mass.pos.y]);
-                }
-            })
+            //         }
+            //         masses_updates.push([8, 0, mass.id, mass.pos.x, mass.pos.y]);
+            //     }
+            // })
 
             //update viruses
             rooms[roomId].viruses.forEach((virus) => {
@@ -1191,10 +1238,562 @@ setInterval(() => {
     })
 
 
-}, 1000 / gc.gameWorld_ups)
+}
+
+serverInterval = setInterval(game_world_update, 1000 / gc.gameWorld_ups);
+
+// setInterval(() => {
+
+
+//     Object.keys(rooms).forEach((roomId) => {
+
+//         if (rooms[roomId].active == true) {
+
+//             let players = { ...rooms[roomId].players };
+//             let foods = rooms[roomId].foods;
+//             let viruses = rooms[roomId].viruses;
+//             let masses = rooms[roomId].masses;
+
+
+//             // let foods_eaten = [];
+//             // let foods_born = [];
+//             // let virus_updates = [];
+//             // let masses_updates = [];
+
+//             let foods_eaten = rooms[roomId].foods_eaten;
+//             let foods_born = rooms[roomId].foods_born;
+//             let virus_updates = rooms[roomId].virus_updates;
+//             let masses_updates = rooms[roomId].masses_updates;
+
+//             // update position for each player
+
+//             // Object.keys(players).forEach((id) => {
+//             //     players[id].game_object.updatePosition();
+//             // })
+
+//             // check each cell collision with other entities
+//             Object.keys(players).forEach((id) => {
+
+
+//                 let score_words = [];
+//                 // if player is a bot then call generate inputs 
+//                 if (players[id].bot) {
+//                     //console.log("eimai bot")
+//                     game.generate_inputs(players[id]);
+//                 }
+//                 if (players[id].game_object.ghost) {
+
+//                     if (Date.now() > players[id].game_object.ghost_start + 5000) {
+//                         players[id].game_object.ghost = false;
+//                         players[id].socket.emit('you are not ghost');
+//                         io.to(roomId).emit('he is not ghost', players[id].father_id);
+//                     }
+
+//                 }
+
+
+//                 players[id].game_object.updateMass();
+
+//                 players[id].game_object.updatePosition();
+
+
+//                 // check for food collissions 
+//                 players[id].game_object.cells.forEach((cell) => {
+//                     foods.forEach((food, foodIndex) => {
+//                         if (Math.hypot(cell.pos.x - food.pos.x, cell.pos.y - food.pos.y) < cell.radius) {
+//                             //On Collision with food
+
+//                             foods_eaten.push(foods[foodIndex].id);
+//                             score_words.push([10, 1, food.pos.x, food.pos.y]);
+//                             foods.splice(foodIndex, 1);
+
+
+
+//                             // cell.radius = Math.sqrt(sum / Math.PI) + 0.0005 * Math.sqrt(sum / Math.PI); //util.massToRadius(cell.mass);
+
+//                             if (players[id].game_object.totalMass < gc.maxTotalMass) {
+//                                 let res = gc.maxTotalMass - players[id].game_object;
+
+//                                 let increase = food.mass //food.radius * 0.2;
+
+//                                 if (increase >= res) {
+//                                     cell.radius += res;
+//                                 }
+//                                 else {
+//                                     cell.radius += increase;
+//                                 }
+//                             }
+//                             //cell.radius += food.radius * 0.2;
+
+//                             //cell.mass = cell.radius;
+//                             players[id].game_object.foodsEaten += 1;
+//                             players[id].game_object.score.foodsEaten += 1;
+//                             //console.log(cell.radius, food.radius);
+
+//                             // if (players[id].bot && cell.radius >= 120) {
+//                             //     cell.radius = 120;
+//                             //     cell.mass = 120;
+//                             // }
+
+//                         }
+//                     })
+//                 });
+
+//                 //check for virus collissions
+//                 players[id].game_object.cells.forEach((cell) => {
+//                     viruses.forEach((virus, virusIndex) => {
+//                         if (Math.hypot(cell.pos.x - virus.pos.x, cell.pos.y - virus.pos.y) < cell.radius) {
+//                             //On Collision with virus check if the virus has effect on the cell
+//                             if (cell.radius > virus.radius + 20) {
+//                                 //console.log(id, virus.fatherId, virus)
+//                                 if (virus.catapultForce && virus.catapultForce.speed > 0 && virus.fatherId == id) {
+//                                     //check if virus is on catapult and if it is its father cell and if so , do nothing
+//                                 } else {
+//                                     //remove eaten virus
+//                                     virus_updates.push([virus.id, 0])
+//                                     score_words.push([10, 3, virus.pos.x, virus.pos.y])
+//                                     viruses.splice(virusIndex, 1);
+
+//                                     // do the virus-split on the cell
+//                                     players[id].game_object.virusSplit(cell)
+
+//                                     players[id].game_object.score.virusEaten += 1;
+
+//                                 }
+
+
+//                             }
+
+
+
+//                         }
+//                     })
+//                 });
+
+
+
+//                 //check for masses collisions 
+//                 // players[id].game_object.cells.forEach((cell) => {
+//                 //     masses.forEach((mass, massIndex) => {
+
+//                 //         if (Math.hypot(cell.pos.x - mass.pos.x, cell.pos.y - mass.pos.y) < cell.radius) {
+//                 //             //On Collision with mass
+//                 //             masses.splice(massIndex, 1);
+//                 //             masses_updates.push([8, 2, mass.id]);
+//                 //             let sum = Math.PI * cell.radius * cell.radius + 2 * Math.PI * mass.radius * mass.radius;
+
+//                 //             cell.radius = Math.sqrt(sum / Math.PI) + 0.0005 * Math.sqrt(sum / Math.PI); //util.massToRadius(cell.mass);
+//                 //             cell.mass = cell.radius;
+//                 //         }
+//                 //     })
+//                 // })
+
+
+
+//                 //check for players collisions
+//                 for (let i = 0; i < Object.keys(players).length; i++) {
+//                     let id2 = Object.keys(players)[i];
+//                     // an yparxei sygkroush metaksy twn kyttarwn toy paikth na ginetai continue
+
+//                     // for the interaction between the cells of the same player
+//                     if (id == id2) {
+
+//                         // if only one cell just continue
+//                         if (players[id].game_object.cells.length == 1) {
+
+//                         }
+//                         else {
+
+//                             for (let j = 0; j < players[id2].game_object.cells.length; j++) {
+//                                 for (k = 0; k < players[id].game_object.cells.length; k++) {
+
+//                                     if (j < 0 || j > players[id2].game_object.cells.length - 1) {
+//                                         continue;
+//                                     }
+//                                     // If the 2 itterators look at the same cell do nothing
+//                                     if (k === j || k >= players[id2].game_object.cells.length || j >= players[id].game_object.cells.length || j < 0 || k < 0) {
+//                                         continue;
+//                                     }
+//                                     else {
+
+//                                         let distance = Math.hypot(players[id].game_object.cells[k].pos.x - players[id2].game_object.cells[j].pos.x,
+//                                             players[id].game_object.cells[k].pos.y - players[id2].game_object.cells[j].pos.y);
+
+//                                         if (distance < players[id].game_object.cells[k].radius || distance < players[id2].game_object.cells[j].radius && players[id].game_object.cells[k].mergeCooldown == 0 && players[id2].game_object.cells[j].mergeCooldown == 0) {
+//                                             // ginetai overlap metaksy kyttarwn
+//                                             if (players[id].game_object.cells[k].mass >= players[id2].game_object.cells[j].mass && players[id].game_object.cells[k].mergeCooldown <= 0 && players[id2].game_object.cells[j].mergeCooldown <= 0) {
+//                                                 // to megalytero kyttaro trwei to mikrotero
+//                                                 players[id].game_object.cells[k].mass += players[id2].game_object.cells[j].mass;
+//                                                 players[id].game_object.cells[k].radius += players[id].game_object.cells[j].radius;
+
+//                                                 // an ena apo ta dyo eixe virus tote kai to enwmeno tha exei virus
+//                                                 if (players[id].game_object.cells[k].virus || players[id].game_object.cells[j].virus) {
+//                                                     players[id].game_object.cells[k].virus = true;
+//                                                 }
+
+
+//                                                 // afairoume to fagomeno kyttaro apo to array
+//                                                 players[id2].game_object.cells.splice(j, 1);
+//                                                 j -= 1;
+
+//                                             }
+//                                         }
+//                                     }
+//                                 }
+
+//                             }
+
+//                         }
+
+//                     }
+
+//                     // for the interaction between the cells of different players
+//                     else {
+
+//                         for (let j = 0; j < players[id2].game_object.cells.length; j++) {
+//                             for (k = 0; k < players[id].game_object.cells.length; k++) {
+
+//                                 if (players[id2].game_object.ghost || players[id].game_object.ghost) {
+//                                     continue;
+//                                 }
+
+//                                 if (j < 0 || j > players[id2].game_object.cells.length - 1) {
+//                                     continue;
+//                                 }
+
+//                                 let distance = Math.hypot(players[id].game_object.cells[k].pos.x - players[id2].game_object.cells[j].pos.x,
+//                                     players[id].game_object.cells[k].pos.y - players[id2].game_object.cells[j].pos.y);
+
+//                                 if (distance < players[id].game_object.cells[k].radius || distance < players[id2].game_object.cells[j].radius) {
+//                                     // ginetai overlap metaksy kyttarwn
+//                                     if (players[id].game_object.cells[k].mass > players[id2].game_object.cells[j].mass) {
+//                                         // to megalytero kyttaro trwei to mikrotero
+
+//                                         // elegxoume thn synolikh maza na menei katw apo gc.maxTotalMass
+//                                         if (players[id].game_object.totalMass < gc.maxTotalMass) {
+//                                             let res = gc.maxTotalMass - players[id].game_object.totalMass;
+
+//                                             let increase = players[id2].game_object.cells[j].radius;
+
+//                                             if (increase >= res) {
+//                                                 players[id].game_object.cells[k].radius += res;
+//                                             }
+//                                             else {
+//                                                 players[id].game_object.cells[k].radius += increase;
+//                                             }
+//                                         }
+//                                         // an to fagomeno kyttaro eixe virus tote kane to virus split
+//                                         if (players[id2].game_object.cells[j].virus) {
+
+//                                             // do the virus-split on the cell
+//                                             players[id].game_object.virusSplit(players[id].game_object.cells[k])
+//                                         }
+
+
+//                                         score_words.push([10, 2, players[id2].game_object.cells[j].pos.x, players[id2].game_object.cells[j].pos.y])
+
+//                                         if (players[id].bot && players[id].game_object.cells[k].radius >= 120) {
+//                                             players[id].game_object.cells[k].radius = 120;
+//                                             players[id].game_object.cells[k].mass = 120;
+//                                         }
+
+//                                         players[id].game_object.score.cellsEaten += 1;
+
+//                                         // afairoume to fagomeno kyttaro apo to array
+
+//                                         if (players[id2].game_object.cells.length > 1) {
+
+
+//                                             players[id2].game_object.cells.splice(j, 1);
+//                                             j -= 1;
+
+
+//                                         }
+
+//                                         else {
+
+//                                             players[id].game_object.score.eliminations += 1;
+
+//                                             if (players[id2].roomId == 'liveWorld') {
+
+
+
+//                                                 players[id2].game_object.cells.splice(j, 1);
+//                                                 j -= 1;
+
+//                                                 if (!players[id2].bot && !players[id2].game_object.bot) {
+//                                                     // an den einai bot , steile defeated kanonika.
+//                                                     if (players[id2].game_object != null)
+//                                                         players[id2].socket.emit('defeated', players[id2].game_object.score);
+//                                                     // console.log("ESTEILA DEFEATED STON " + players[id2].name);
+//                                                 }
+
+
+//                                             } else {
+//                                                 // respawn player to the room
+//                                                 players[id2].game_object.cells[j].radius = gc.initialRadius;
+
+
+//                                                 // make the player ghost
+//                                                 if (!players[id2].bot && !players[id2].game_object.bot) {
+
+//                                                     players[id2].game_object.ghost = true;
+//                                                     players[id2].game_object.ghost_start = Date.now();
+//                                                     players[id2].socket.emit('you are ghost');
+//                                                     io.to(roomId).emit('he is ghost', players[id2].father_id);
+//                                                 }
+
+
+
+
+//                                                 // set countdown timer for un-ghost 
+
+
+//                                                 // players[id2].game_object.ghost = false;
+//                                                 // players[id2].socket.emit('you are not ghost');
+//                                                 // io.to(roomId).emit('he is not ghost', players[id2].father_id);
+
+
+//                                             }
+
+//                                         }
+
+
+
+
+//                                     }
+
+//                                 }
+//                             }
+//                         }
+//                     }
+
+
+
+//                 }
+//                 // update total mass 
+//                 players[id].game_object.updateMass();
+
+//                 if (players[id].game_object.totalMass >= 300) {
+//                     players[id].game_object.maxMassReachedTicks -= 1;
+
+//                     if (players[id].game_object.maxMassReachedTicks <= 0) {
+//                         // steile to score word 
+//                         score_words.push([10, 4, players[id].game_object.pos.x, players[id].game_object.pos.y]);
+
+//                         // aykshse to times kata 1 
+//                         players[id].game_object.maxMassReachedTimes += 1;
+
+//                         // ta ticks ginontai ksana 500 
+//                         players[id].game_object.maxMassReachedTicks = gc.maxMassReachedTicks;
+//                     }
+//                 }
+//                 score_words.forEach((word) => {
+//                     players[id].game_object.score_words.push([...word]);
+//                 })
+
+//                 //console.log(players[id].game_object.score_words.length);
+
+//                 //players[id].game_object.score_words = score_words;
+
+//             })
+
+//             // update entities controlled by server
+
+//             if (foods.length < gc.numOfFoods) {
+//                 // REGENERATE FOODS 
+//                 foods = game.regenerateFoods(foods, foods_born);
+
+//             }
+
+
+//             //update masses
+//             rooms[roomId].masses.forEach((mass) => {
+//                 if (mass.catapultForce) {
+//                     mass.update();
+//                     if (mass.new_born) {
+//                         masses_updates.push([8, 1, mass.id, mass.hue, mass.radius, mass.pos.x, mass.pos.y])
+//                         mass.new_born = false;
+
+//                     }
+//                     masses_updates.push([8, 0, mass.id, mass.pos.x, mass.pos.y]);
+//                 }
+//             })
+
+//             //update viruses
+//             rooms[roomId].viruses.forEach((virus) => {
+//                 if (virus.catapultForce) {
+
+//                     virus.update();
+//                     virus_updates.push([virus.id, 1, virus.pos.x, virus.pos.y])
+//                 }
+
+
+//             })
+
+
+//             // send update
+
+
+
+//             // Object.keys(players).forEach((id) => {
+
+//             //     //if player is a bot just idle for a time duration and dont use sockets
+//             //     if (players[id].bot) {
+//             //         //console.log("einai bot")
+//             //         players[id].game_object.updateMass();
+//             //         //idle 
+//             //     }
+
+//             //     let package2 = [];
+
+//             //     // find "you"
+//             //     players[id].game_object.updateMass();
+
+//             //     let cellsUpdated = [];
+//             //     let cellsUpdated2 = [];
+
+//             //     package2.push([1, players[id].game_object.pos.x, players[id].game_object.pos.y]);
+
+//             //     if (players[id].game_object.score_words.length >= 1) {
+//             //         for (i = 0; i < players[id].game_object.score_words.length; i++) {
+//             //             //console.log(score_words, "STELNW LEKSEIS")
+//             //             package2.push(players[id].game_object.score_words[i]);
+//             //         }
+//             //         // console.log(players[id].game_object.score_words.length);
+//             //         players[id].game_object.score_words = [];
+//             //     }
+
+
+//             //     players[id].game_object.cells.forEach((cell) => {
+//             //         cellsUpdated.push(
+//             //             {
+//             //                 radius: cell.radius,
+//             //                 mass: cell.mass,
+//             //                 pos: cell.pos,
+//             //                 id: cell.id,
+//             //                 virus: cell.virus
+
+//             //             })
+
+//             //         package2.push([2, cell.id, cell.pos.x, cell.pos.y, cell.radius, cell.mass, cell.virus ? 1 : 0]);
+
+//             //     })
+
+
+
+//             //     // find enemies 
+
+//             //     let enemies = [];
+//             //     let enemy_players = []
+//             //     let ghosts = [];
+
+
+//             //     if (Object.keys(players).length > 1) {
+//             //         //gather every player's enemies
+
+
+//             //         Object.keys(players).forEach((id2) => {
+//             //             if (id2 == id) {
+
+//             //             } else {
+//             //                 if (players[id2].i_am_new_ticks > 0) {
+//             //                     enemy_players.push([4, players[id2].father_id, players[id2].name, players[id2].hue, players[id2].border_hue]);
+//             //                     package2.push([4, players[id2].father_id, players[id2].name, players[id2].game_object.hue, players[id2].game_object.border_hue]);
+//             //                     //players[id2].i_am_new_ticks -= 1;
+//             //                 }
+
+
+
+//             //                 let pack = {
+//             //                     name: players[id2].name,
+//             //                     cells: players[id2].game_object.cells,
+//             //                     hue: players[id2].game_object.hue,
+//             //                     border_hue: players[id2].game_object.border_hue,
+
+//             //                 }
+//             //                 enemies.push(pack);
+
+//             //                 players[id2].game_object.cells.forEach((cell) => {
+//             //                     // we will only send info about enemy cells position only if the two players are close
+//             //                     if (Math.abs(players[id].game_object.pos.x - cell.pos.x) < gc.gameWidth / 2 && Math.abs(players[id].game_object.pos.y - cell.pos.y) < gc.gameHeight / 2)
+//             //                         package2.push([3, players[id2].father_id, cell.pos.x, cell.pos.y, cell.radius, cell.virus ? 1 : 0, cell.id])
+//             //                 })
+//             //             }
+//             //         })
+
+//             //         if (players[id].i_am_new_ticks > 0) {
+//             //             let i = 0;
+//             //             let enemy_players = roomsJs.getRoomEnemies(rooms[roomId], id)
+//             //             Object.keys(enemy_players).forEach((id3) => {
+
+//             //                 package2.push([4, id, enemy_players[id3].name, enemy_players[id3].hue, enemy_players[id3].border_hue]);
+//             //                 i++;
+//             //             })
+//             //             // console.log(`mphke o ${players[id].name} esteila ${i} paiktes`);
+//             //             players[id].i_am_new_ticks -= 1;
+//             //         }
+
+
+//             //     }
+
+//             //     foods_eaten.forEach((food) => {
+//             //         package2.push([5].concat(food))
+//             //     });
+
+//             //     foods_born.forEach((food) => {
+//             //         package2.push([6, food])
+//             //     })
+
+//             //     virus_updates.forEach((virus) => {
+//             //         package2.push([7].concat(virus))
+//             //     })
+
+//             //     masses_updates.forEach((array) => {
+//             //         package2.push(array);
+//             //     })
+
+//             //     package2.push([9, players[id].game_object.getTotalScore()]);
+
+
+
+//             //     //   players[id].my_updates = [...package2];
+
+//             //     let package = {
+//             //         pos: players[id].game_object.pos,
+//             //         cells: cellsUpdated,
+//             //         foodsEaten: players[id].game_object.foodsEaten,
+//             //         enemies: enemies,
+//             //         enemy_players: enemy_players,
+//             //         foods_eaten: foods_eaten,
+//             //         foods_born: foods_born,
+//             //         virus_updates: virus_updates,
+//             //         masses: rooms[roomId].masses
+//             //     }
+
+//             //     // send update
+//             //     if (!players[id].bot) {
+
+
+//             //         //  players[id].my_updates.push([...package2]);
+//             //         players[id].socket.emit('u', package2);
+//             //     }
+
+//             // })
+
+
+//         }
+//         // rooms[roomId].foods_eaten = [];
+//         // rooms[roomId].foods_born = [];
+//         // rooms[roomId].virus_updates = [];
+//         // rooms[roomId].masses_updates = [];
+//     })
+
+
+// }, 1000 / gc.gameWorld_ups)
 // arxika to eixa 100 gw-ups kai broadcast-ups
 
-setInterval(() => {
+function broadcast_updates() {
 
     Object.keys(rooms).forEach((roomId) => {
 
@@ -1288,7 +1887,7 @@ setInterval(() => {
 
                             players[id2].game_object.cells.forEach((cell) => {
                                 // we will only send info about enemy cells position only if the two players are close
-                                if (Math.abs(players[id].game_object.pos.x - cell.pos.x) < gc.gameWidth / 2 && Math.abs(players[id].game_object.pos.y - cell.pos.y) < gc.gameHeight / 2)
+                                if (Math.abs(players[id].game_object.pos.x - cell.pos.x) < gc.gameWidth / 3 && Math.abs(players[id].game_object.pos.y - cell.pos.y) < gc.gameHeight / 3)
                                     package2.push([3, players[id2].father_id, cell.pos.x, cell.pos.y, cell.radius, cell.virus ? 1 : 0, cell.id])
                                 // if (cell.pre_split_data != undefined) {
                                 //     package2[package2.length - 1].push(cell.pre_split_data.x, cell.pre_split_data.y, cell.pre_split_data.radius);
@@ -1369,8 +1968,187 @@ setInterval(() => {
 
         }
     })
+}
 
-}, 1000 / gc.broadcast_ups)
+broadcastInterval = setInterval(broadcast_updates, 1000 / gc.broadcast_ups)
+
+// setInterval(() => {
+
+//     Object.keys(rooms).forEach((roomId) => {
+
+//         if (rooms[roomId].active == true) {
+
+//             let foods_eaten = [...rooms[roomId].foods_eaten];
+//             let foods_born = [...rooms[roomId].foods_born];
+//             let virus_updates = [...rooms[roomId].virus_updates];
+//             let masses_updates = [...rooms[roomId].masses_updates];
+
+//             rooms[roomId].foods_eaten = [];
+//             rooms[roomId].foods_born = [];
+//             rooms[roomId].virus_updates = [];
+//             rooms[roomId].masses_updates = [];
+
+//             let players = { ...rooms[roomId].players };
+
+//             Object.keys(players).forEach((id) => {
+
+//                 //if player is a bot just idle for a time duration and dont use sockets
+//                 if (players[id].bot) {
+//                     //console.log("einai bot")
+//                     players[id].game_object.updateMass();
+//                     //idle 
+//                 }
+
+//                 let package2 = [];
+
+//                 // find "you"
+//                 players[id].game_object.updateMass();
+
+//                 let cellsUpdated = [];
+//                 let cellsUpdated2 = [];
+
+//                 package2.push([1, players[id].game_object.pos.x, players[id].game_object.pos.y]);
+
+
+
+
+//                 players[id].game_object.cells.forEach((cell) => {
+//                     cellsUpdated.push(
+//                         {
+//                             radius: cell.radius,
+//                             mass: cell.mass,
+//                             pos: cell.pos,
+//                             id: cell.id,
+//                             virus: cell.virus
+
+//                         })
+
+//                     package2.push([2, cell.id, cell.pos.x, cell.pos.y, cell.radius, cell.mass, cell.virus ? 1 : 0, cell.mergeCooldown]);
+//                     if (cell.catapultForce.speed > 0) {
+//                         package2[package2.length - 1].push(cell.catapultForce.speed, cell.catapultForce.dx, cell.catapultForce.dy, cell.catapultForce.friction);
+//                     }
+
+//                 })
+
+
+
+//                 // find enemies 
+
+//                 let enemies = [];
+//                 let enemy_players = []
+//                 let ghosts = [];
+
+
+//                 if (Object.keys(players).length > 1) {
+//                     //gather every player's enemies
+
+
+//                     Object.keys(players).forEach((id2) => {
+//                         if (id2 == id) {
+
+//                         } else {
+//                             if (players[id2].i_am_new_ticks > 0) {
+//                                 enemy_players.push([4, players[id2].father_id, players[id2].name, players[id2].hue, players[id2].border_hue]);
+//                                 package2.push([4, players[id2].father_id, players[id2].name, players[id2].game_object.hue, players[id2].game_object.border_hue]);
+//                                 //players[id2].i_am_new_ticks -= 1;
+//                             }
+
+
+
+//                             let pack = {
+//                                 name: players[id2].name,
+//                                 cells: players[id2].game_object.cells,
+//                                 hue: players[id2].game_object.hue,
+//                                 border_hue: players[id2].game_object.border_hue,
+
+//                             }
+//                             enemies.push(pack);
+
+//                             players[id2].game_object.cells.forEach((cell) => {
+//                                 // we will only send info about enemy cells position only if the two players are close
+//                                 if (Math.abs(players[id].game_object.pos.x - cell.pos.x) < gc.gameWidth / 2 && Math.abs(players[id].game_object.pos.y - cell.pos.y) < gc.gameHeight / 2)
+//                                     package2.push([3, players[id2].father_id, cell.pos.x, cell.pos.y, cell.radius, cell.virus ? 1 : 0, cell.id])
+//                                 // if (cell.pre_split_data != undefined) {
+//                                 //     package2[package2.length - 1].push(cell.pre_split_data.x, cell.pre_split_data.y, cell.pre_split_data.radius);
+//                                 // }
+//                             })
+//                         }
+//                     })
+
+//                     if (players[id].i_am_new_ticks > 0) {
+//                         let i = 0;
+//                         let enemy_players = roomsJs.getRoomEnemies(rooms[roomId], id)
+//                         Object.keys(enemy_players).forEach((id3) => {
+
+//                             package2.push([4, id, enemy_players[id3].name, enemy_players[id3].hue, enemy_players[id3].border_hue]);
+//                             i++;
+//                         })
+//                         // console.log(`mphke o ${players[id].name} esteila ${i} paiktes`);
+//                         players[id].i_am_new_ticks -= 1;
+//                     }
+
+
+//                 }
+//                 foods_born.forEach((food) => {
+//                     package2.push([6, food])
+//                 })
+//                 foods_eaten.forEach((food) => {
+//                     package2.push([5].concat(food))
+//                 });
+
+
+
+//                 virus_updates.forEach((virus) => {
+//                     package2.push([7].concat(virus))
+//                 })
+
+//                 masses_updates.forEach((array) => {
+//                     package2.push(array);
+//                 })
+
+//                 package2.push([9, players[id].game_object.getTotalScore()]);
+
+
+//                 if (players[id].game_object.score_words.length >= 1) {
+//                     for (i = 0; i < players[id].game_object.score_words.length; i++) {
+//                         //console.log(score_words, "STELNW LEKSEIS")
+//                         package2.push(players[id].game_object.score_words[i]);
+//                     }
+//                     //console.log(players[id].game_object.score_words.length);
+//                     players[id].game_object.score_words = [];
+//                 }
+//                 //   players[id].my_updates = [...package2];
+
+//                 let package = {
+//                     pos: players[id].game_object.pos,
+//                     cells: cellsUpdated,
+//                     foodsEaten: players[id].game_object.foodsEaten,
+//                     enemies: enemies,
+//                     enemy_players: enemy_players,
+//                     foods_eaten: foods_eaten,
+//                     foods_born: foods_born,
+//                     virus_updates: virus_updates,
+//                     masses: rooms[roomId].masses
+//                 }
+
+//                 // send update
+//                 if (!players[id].bot) {
+
+
+//                     //  players[id].my_updates.push([...package2]);
+//                     //  package2.push(extra_size);
+//                     players[id].socket.emit('u', package2);
+//                 }
+
+//             })
+
+
+
+
+//         }
+//     })
+
+// }, 1000 / gc.broadcast_ups)
 
 // SEND LEADERBOARDS DATA
 setInterval(() => {
@@ -1396,9 +2174,9 @@ setInterval(() => {
         })
 
 
-        array.sort((a, b) => { return a.mass - b.mass });
+        let sorted_array = array.sort((a, b) => b.mass - a.mass);
         //find self position
-        array.reverse();
+        // array.reverse();
 
 
 
@@ -1414,7 +2192,7 @@ setInterval(() => {
             }
 
             let my_position;
-            let array2 = [...array];
+            let array2 = [...sorted_array];
 
             for (i = 0; i < array2.length; i++) {
                 if (array2[i].id == id) {

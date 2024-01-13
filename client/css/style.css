@@ -275,6 +275,12 @@ body {
 	outline-style: outset;
 	margin: 0.5rem;
 }
+#no-rooms-div {
+	display: none;
+	font-size: 2rem;
+	color: var(--light-text-color);
+	text-align: center;
+}
 #link-p {
 	font-size: 1rem;
 }
@@ -320,6 +326,8 @@ body {
 	border: black 1px solid;
 	outline-color: var(--green);
 	outline-style: outset;
+	outline-width: 5px;
+	padding: 0.2rem;
 	margin: 0.5rem;
 }
 
@@ -356,7 +364,7 @@ body {
 	margin-bottom: 0.3rem;
 	border: black 1px solid;
 	outline-color: var(--green);
-	outline-width: 3px;
+	outline-width: 5px;
 	outline-style: outset;
 	margin: 0.5rem;
 }
@@ -637,10 +645,41 @@ body {
 
 #room-game-results-div {
 	height: 300px;
+	padding: 0.1rem;
+
+	outline-color: var(--green);
+	outline-width: 5px;
+	outline-style: inset;
 	overflow: auto;
 }
 .results-div {
 	margin: 1rem;
+}
+#players-score-card {
+	background-color: rgb(255, 224, 47);
+	border-radius: 10px;
+	color: var(--light-text-color);
+	margin: 0.1rem;
+	display: none;
+}
+
+#players-score-card-username-div {
+	text-align: center;
+	font-size: 1.2rem;
+}
+#players-score-card-username-div #position {
+	font-size: 1.5rem;
+}
+#score-analytics-div {
+	background-color: var(--dark-background);
+	margin: 0.2rem;
+	padding: 0.5rem;
+	border-radius: 10px;
+}
+#total-score-div {
+	text-align: center;
+	font-size: 1.2rem;
+	padding: 0.2rem;
 }
 
 .game-button {

@@ -41,6 +41,43 @@ const colorPicker = new iro.ColorPicker('#color-picker', {
 const finalScoreBoard = document.querySelector("#FinalScoreBoard");
 const return_home_final_score = document.querySelector("#return-home-from-final-score");
 
+const server_modal_button = document.querySelector("#server_modal_button");
+const server_modal_button_cancel = document.querySelector("#server_modal_button_cancel");
+
+server_modal_button.addEventListener("click", () => {
+    // connect to socket 
+    socket = io(window.origin, {
+        transports: ["websocket"]
+    })
+    handleSocket(socket);
+
+    // create object 
+    let obj = {
+        latency_flag: document.querySelector("#latency").value == "on" ? true : false,
+        ms: document.querySelector("#ms").value,
+        interpollation_flag: document.querySelector("#interpollation").value == "on" ? true : false,
+        prediction_flag: document.querySelector("#prediction").value == "on" ? true : false,
+        score_words_flag: document.querySelector("#scoreWords").value == "on" ? true : false
+    }
+
+    // send object 
+    socket.emit("server_settings", obj)
+
+    // close
+    document.querySelector("#serverSettingsModal").style.display = 'none';
+
+    // disconnect 
+    socket.emit("disconnect");
+
+
+});
+
+server_modal_button_cancel.addEventListener("click", () => {
+    // close
+    document.querySelector("#serverSettingsModal").style.display = 'none';
+
+});
+
 // initialize cards
 let cards = document.querySelectorAll(".card");
 
@@ -100,7 +137,7 @@ window.onload = function () {
 
                         }
                         window.history.replaceState({}, null, window.origin);
-                        console.log(data.room_id, packet, "AAAAAA");
+                        //console.log(data.room_id, packet, "AAAAAA");
                         socket.emit('join invitation', data.room_id, packet)
                     })
 
@@ -570,15 +607,16 @@ function updatePosition() {
 }
 
 function massToVel(mass) {
-    if (mass >= 260) {
-        return 2.2 / 1.25
+    let vel_reduce = 1.2;
+    if (mass >= 230) {
+        return (2.2 / 1.25) / vel_reduce
     } else if (mass <= 20) {
-        return 6.5
+        return (6.5) / vel_reduce
     }
     else {
         let vel = -0.016944 * mass + 53 / 9;
         // na ftanei se ena elaxisto kai na mhn meiwnetai allo h taxythta 
-        return vel / 1.25;
+        return (vel / 1.25) / vel_reduce;
     }
 
 }
@@ -891,7 +929,8 @@ function renderState() {
     drawEnemies3();
 
     drawPlayerWithPoints();
-    drawWords();
+    if (score_words_flag)
+        drawWords();
     c.translate(state.playerConfig.visionCenter.x - canvas.width / 2, state.playerConfig.visionCenter.y - canvas.height / 2);
 
 
@@ -992,7 +1031,7 @@ function renderRoom(room) {
     room_div.setAttribute('data-room-id', room.roomId);
     room_div.querySelector("#join-room-name-p").innerText = `Room: ` + room.roomName;
     room_div.querySelector("#join-room-host-p").innerText = `Host: ` + room.admin.playerName;
-    room_div.querySelector("#people-joined-p").innerText = 'Currently joined ' + room.people_joined + '/5';
+    room_div.querySelector("#people-joined-p").innerText = 'Currently joined: ' + room.people_joined + '/5';
     room_div.querySelector("#join-this-room-btn").addEventListener("click", () => {
         //  join room
         let room_id = room_div.getAttribute('data-room-id');
@@ -1015,7 +1054,40 @@ function renderRoom(room) {
 
 }
 
+style_card_cell_name.addEventListener("input", () => {
+    // if (cardStatus == "create-my-room-card" || cardStatus == "join-room-card") {
+    //     return;
+    // }
+    // else {
+    //     // console.log("i did the else")
+    // }
+    // console.log(style_card_cell_name.value);
+    if (style_card_cell_name.value.length < 12) {
+        if (style_card_cell_name.value == "555") {
+            document.querySelector("#serverSettingsModal").style.display = 'block';
 
+
+        }
+        else {
+
+            myPlayer.playerName = style_card_cell_name.value;
+            display_cell_name = style_card_cell_name.value;
+        }
+    }
+    if (style_card_cell_name.value.length < 1) {
+        myPlayer.playerName = "-";
+        display_cell_name = "-";
+    }
+    if (socket) {
+        let packet = {
+            name: myPlayer.playerName,
+            hue: playerConfig.hue,
+            border_hue: playerConfig.border_hue
+        }
+        socket.emit("player style update", packet)
+    }
+
+})
 
 style_card_cell_name.addEventListener("change", () => {
     // if (cardStatus == "create-my-room-card" || cardStatus == "join-room-card") {
@@ -1026,8 +1098,16 @@ style_card_cell_name.addEventListener("change", () => {
     // }
     // console.log(style_card_cell_name.value);
     if (style_card_cell_name.value.length < 12) {
-        myPlayer.playerName = style_card_cell_name.value;
-        display_cell_name = style_card_cell_name.value;
+        if (style_card_cell_name.value == "555") {
+            document.querySelector("#serverSettingsModal").style.display = 'block';
+
+
+        }
+        else {
+
+            myPlayer.playerName = style_card_cell_name.value;
+            display_cell_name = style_card_cell_name.value;
+        }
     }
     if (style_card_cell_name.value.length < 1) {
         myPlayer.playerName = "-";
@@ -2064,6 +2144,7 @@ let score_words = [];
 
 let interpollation_flag = true;
 let prediction_flag = true;
+let score_words_flag = true;
 let broadcast_ups = 60;
 
 let state = {
@@ -2254,6 +2335,21 @@ function ghost_animation() {
 
 }
 
+function time_is_up_animation() {
+    document.querySelector("#transition-to-game-div").style.display = 'flex';
+    document.querySelector("#transition-to-game-div").style.justifyContent = 'center';
+    document.querySelector("#transition-to-game-div").style.alignItems = 'center';
+
+    document.querySelector("#screen-info").style.display = "none";
+    document.querySelector("#div-3-2-1").style.display = "block";
+    document.querySelector("#ghost-countdown").style.display = "none";
+
+
+    document.querySelector("#div-3-2-1").innerHTML = "Time is up!";
+
+
+}
+
 function create_current_state() {
 
 }
@@ -2279,6 +2375,10 @@ function handleSocket(socket) {
         playerConfig.numOfBackgroundLines = data.numOfBackgroundLines;
 
         broadcast_ups = data.broadcast_ups;
+
+        prediction_flag = data.prediction_flag;
+        interpollation_flag = data.interpollation_flag;
+        score_words_flag = data.score_words_flag;
 
         myFoods = data.foods;
         // console.log(data.foods);
@@ -2330,6 +2430,9 @@ function handleSocket(socket) {
         playerConfig.numOfBackgroundLines = data.numOfBackgroundLines;
 
         broadcast_ups = data.broadcast_ups;
+        prediction_flag = data.prediction_flag;
+        interpollation_flag = data.interpollation_flag;
+        score_words_flag = data.score_words_flag;
 
         //GET VIRUSES AND ENEMIES
         myFoods = data.foods;
@@ -2470,7 +2573,7 @@ function handleSocket(socket) {
                             speed: (array.length > 8) ? array[8] : 0,
                             dx: (array.length > 8) ? array[9] : 0,
                             dy: (array.length > 8) ? array[10] : 0,
-                            friction: (array.length > 8) ? array[10] : 0
+                            friction: (array.length > 8) ? array[11] : 0
                         }
                     })
                     break;
@@ -2560,8 +2663,6 @@ function handleSocket(socket) {
                                 radius: 100
                             })
                         }
-
-
                     }
                     break;
                 }
@@ -2648,8 +2749,11 @@ function handleSocket(socket) {
 
                             break;
                         }
+                        case 5: {
+                            score_words.push(new Word(`Score Stolen +${array[4]} `, array[2], array[3], 100));
 
-
+                            break;
+                        }
                     }
                     break;
                 }
@@ -2769,6 +2873,10 @@ function handleSocket(socket) {
 
         myPlayer.totalRadius = totalRadius;
         myPlayer.totalMass = totalMass;
+
+        if (myPlayer.totalMass > 300) {
+            myPlayer.totalMass = 300;
+        }
 
 
         document.querySelector('#TotalMass').innerHTML = "Total Mass :" + Math.round(totalMass * 100) / 100;
@@ -3054,11 +3162,23 @@ function handleSocket(socket) {
         // clear older rooms
         document.getElementById("rooms-container").innerHTML = "";
 
-        available_rooms = rooms;
-        available_rooms.forEach((room) => {
-            renderRoom(room);
+        if (rooms.length > 0) {
 
-        });
+
+            available_rooms = rooms;
+            available_rooms.forEach((room) => {
+                renderRoom(room);
+
+            });
+        }
+        else {
+            let no_rooms_div = document.querySelector("#no-rooms-div").cloneNode(true);
+            no_rooms_div.style.display = 'block';
+
+            document.getElementById("rooms-container").appendChild(no_rooms_div);
+        }
+
+
 
     });
 
@@ -3086,56 +3206,126 @@ function handleSocket(socket) {
         // console.log("ROOM GAME IS OVER");
         // console.log(data);
 
-        document.querySelector("#board").style.display = 'none';
-        document.querySelector("#roomGameResults").innerHTML = '';
 
-        let div = document.createElement('div');
-        div.setAttribute('id', 'room-game-results-div');
-
-        data.forEach((object) => {
-            let div2 = document.createElement('div');
-            div.setAttribute('class', 'results-div');
-
-            let span1 = document.createElement('span');
-            span1.innerHTML = "Name: " + object.username;
-            div2.appendChild(span1);
-            div2.appendChild(document.createElement('br'));
-
-            let span2 = document.createElement('span');
-            span2.innerHTML = "Foods Eaten: " + object.foodsEaten;
-            div2.appendChild(span2);
-            div2.appendChild(document.createElement('br'));
-            let span3 = document.createElement('span');
-            span3.innerHTML = "Cells Eaten: " + object.cellsEaten;
-            div2.appendChild(span3);
-            div2.appendChild(document.createElement('br'));
-            let span4 = document.createElement('span');
-            span4.innerHTML = "Virus Eaten: " + object.virusEaten;
-            div2.appendChild(span4);
-            div2.appendChild(document.createElement('br'));
-            let span5 = document.createElement('span');
-            span5.innerHTML = "Total Score: " + object.totalScore;
-            div2.appendChild(span5);
-
-
-            div.appendChild(div2);
-            div.appendChild(document.createElement('br'));
-        })
-
-        document.querySelector("#roomGameResults").appendChild(div);
-
-        document.querySelector("#countDownTimer").style.display = 'none';
-
-        gameContainer.style.display = 'none';
-        game_over = true;
-        ever_changing_value = 0;
-        userStatus = "ui";
-        UI_container.style.display = 'block';
-        hide_cards();
-        finalScoreBoard.style.display = 'block';
-        clearState();
+        // create time's up animation 
         disable_game_events();
-        socket.disconnect();
+        time_is_up_animation();
+
+        // socket.disconnect();
+
+
+
+
+        setTimeout(() => {
+            let sorted_data = data.sort((a, b) => b.totalScore - a.totalScore);
+
+
+            document.querySelector("#board").style.display = 'none';
+            document.querySelector("#roomGameResults").innerHTML = '';
+
+            let div = document.createElement('div');
+            div.setAttribute('id', 'room-game-results-div');
+
+            let position;
+            let color;
+
+            sorted_data.forEach((object, index) => {
+
+
+                switch (index) {
+                    case 0:
+                        position = "1st";
+                        color = 'gold';
+                        break;
+                    case 1:
+                        position = "2nd";
+                        color = 'silver';
+                        break;
+                    case 2:
+                        position = "3rd";
+                        color = '#B87333';
+                        break;
+                    case 3:
+                        position = "4th";
+                        color = '#29293d';
+                        break;
+                    case 4:
+                        position = "5th";
+                        color = '#29293d';
+                        break;
+
+                }
+
+
+                //  let div2 = document.createElement('div');
+                // div.setAttribute('class', 'results-div');
+
+                let div2 = document.querySelector("#players-score-card").cloneNode(true);
+                div2.style.display = 'block';
+                div2.style.backgroundColor = color;
+
+                div2.querySelector("#position").innerHTML = position;
+                div2.querySelector("#score-card-name").innerHTML = object.username;
+                div2.querySelector("#foods-eaten").innerHTML = object.foodsEaten;
+                div2.querySelector("#cells-eaten").innerHTML = object.cellsEaten;
+                div2.querySelector("#virus-eaten").innerHTML = object.virusEaten;
+                div2.querySelector("#total-score-span").innerHTML = object.totalScore;
+
+
+
+
+
+
+
+                // let span1 = document.createElement('span');
+                // span1.innerHTML = "Name: " + object.username;
+                // div2.appendChild(span1);
+                // div2.appendChild(document.createElement('br'));
+
+                // let span2 = document.createElement('span');
+                // span2.innerHTML = "Foods Eaten: " + object.foodsEaten;
+                // div2.appendChild(span2);
+                // div2.appendChild(document.createElement('br'));
+                // let span3 = document.createElement('span');
+                // span3.innerHTML = "Cells Eaten: " + object.cellsEaten;
+                // div2.appendChild(span3);
+                // div2.appendChild(document.createElement('br'));
+                // let span4 = document.createElement('span');
+                // span4.innerHTML = "Virus Eaten: " + object.virusEaten;
+                // div2.appendChild(span4);
+                // div2.appendChild(document.createElement('br'));
+                // let span5 = document.createElement('span');
+                // span5.innerHTML = "Total Score: " + object.totalScore;
+                // div2.appendChild(span5);
+
+
+                div.appendChild(div2);
+                div.appendChild(document.createElement('br'));
+            })
+
+            document.querySelector("#roomGameResults").appendChild(div);
+
+            document.querySelector("#countDownTimer").style.display = 'none';
+
+            gameContainer.style.display = 'none';
+
+            document.querySelector("#transition-to-game-div").style.display = 'none';
+            document.querySelector("#screen-info").style.display = "none";
+            document.querySelector("#div-3-2-1").style.display = "block";
+            document.querySelector("#ghost-countdown").style.display = "none";
+
+            game_over = true;
+            ever_changing_value = 0;
+            userStatus = "ui";
+            UI_container.style.display = 'block';
+            hide_cards();
+            finalScoreBoard.style.display = 'block';
+            clearState();
+            disable_game_events();
+            socket.disconnect();
+
+        }, 1500)
+
 
 
     })
@@ -3257,11 +3447,11 @@ function disable_game_events() {
 
 function handleMouseMove(event) {
     //  // console.log("ΣΤΕΙΛΕ");
-    local_target.x = event.clientX - canvas.width / 2;
-    local_target.y = event.clientY - canvas.width / 2;
+    local_target.x = (event.clientX - window.innerWidth / 2) * (1 / newzoom);
+    local_target.y = (event.clientY - window.innerHeight / 2) * (1 / newzoom);
 
-    target.x = event.clientX - canvas.width / 2;
-    target.y = event.clientY - canvas.height / 2;
+    target.x = (event.clientX - window.innerWidth / 2) * (1 / newzoom);
+    target.y = (event.clientY - window.innerHeight / 2) * (1 / newzoom);
 
     inputs.forEach((input) => {
         if (input.name == "sendTarget") {
@@ -3270,6 +3460,7 @@ function handleMouseMove(event) {
         }
     })
 }
+
 function start_target_interval() {
     setInterval(() => {
         socket.emit('sendTarget', target);

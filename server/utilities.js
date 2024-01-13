@@ -115,15 +115,15 @@ exports.makeid = function (length) {
 }
 
 exports.massToVel = function (mass) {
-  if (mass >= 260) {
-    return 2.2 / 1.25
+  let vel_reduce = 1.2;
+  if (mass >= 230) {
+    return (2.2 / 1.25) / vel_reduce
   } else if (mass <= 20) {
-    return 6.5
+    return (6.5) / vel_reduce
   }
   else {
     let vel = -0.016944 * mass + 53 / 9;
-    // na ftanei se ena elaxisto kai na mhn meiwnetai allo h taxythta 
-    return vel / 1.25;
+    return (vel / 1.25) / vel_reduce;
   }
 
 }

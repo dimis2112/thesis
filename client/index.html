@@ -26,7 +26,7 @@
                     <p>Your Character:</p>
                     <canvas id="display-chararcter-canvas"></canvas> <br>
                     <div id="change-name-div-2">
-                        <label for="room-name">Set Name:</label>
+                        <label for="cell-name">Set Name:</label>
                         <input class="input-style" type="text" id="cell-name" minlength="1" maxlength="11">
                     </div>
                     <div class="buttons">
@@ -47,6 +47,18 @@
                         <button id="join-room-button" class="game-button raise">Join Room</button>
                         <button id="style-your-cell-button" class="game-button raise">Style your Cell</button>
                     </div>
+                </div>
+
+                <div id="players-score-card">
+                    <div id="players-score-card-username-div"> <span id="position">1st: </span> <span
+                            id="score-card-name">Username </span> </div>
+                    <div id="score-analytics-div">
+                        Foods Eaten :<span id="foods-eaten"></span><br>
+                        Cells Eaten :<span id="cells-eaten"></span><br>
+                        Viruses Eaten :<span id="virus-eaten"></span><br>
+
+                    </div>
+                    <div id="total-score-div"> Total Score : <span id="total-score-span"></span></div>
                 </div>
 
                 <div id="your-room-card" class="card borders your-room-card">
@@ -110,7 +122,9 @@
                         <p id="people-joined-p">People joined: 3/5</p>
                         <button id="join-this-room-btn" class="raise">JOIN</button>
                     </div>
+                    <div id="no-rooms-div">No available public rooms for now. <br> We are sorry.</div>
                     <div id="rooms-container" class="borders">
+
 
                     </div>
 
@@ -215,6 +229,30 @@
                 <p class="alert_p">Try play in another room</p>
                 <button id="return_from_admin_left" class="alert_modal_button raise">Return </button>
             </div>
+        </div>
+
+        <div id="serverSettingsModal" class="modal">
+            <div class="modal-content">
+                <label for="latency">Set latency:</label>
+                <input type="text" id="latency" class="input-style"> <br>
+
+                <label for="ms">ups: </label>
+                <input type="text" id="ms" class="input-style"> <br>
+
+                <label for="interpollation">Interpollation flag:</label>
+                <input type="text" id="interpollation" class="input-style"> <br>
+
+                <label for="prediction">Prediction flag:</label>
+                <input type="text" id="prediction" class="input-style"> <br>
+
+                <label for="scoreWords">Score Words flag:</label>
+                <input type="text" id="scoreWords" class="input-style"> <br>
+
+                <button id="server_modal_button" class="server_modal_button raise"> OK </button>
+                <button id="server_modal_button_cancel" class="server_modal_button raise"> CANCEL </button>
+
+            </div>
+
         </div>
 
 

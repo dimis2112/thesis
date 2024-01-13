@@ -2,14 +2,14 @@
 	"gameWidth": 3000,
 	"gameHeight": 3000,
 
-	"initialMass": 120,
-	"initialRadius": 120,
+	"initialMass": 60,
+	"initialRadius": 60,
 	"maxTotalMass": 300,
-	"maxMassReachedTicks": 500,
+	"maxMassReachedTicks": 700,
 	"mergeCooldown": 500,
 
 	"numOfFoods": 200,
-	"roomGameDuration": 90,
+	"roomGameDuration": 100,
 	"virusRadius": 100,
 	"numOfViruses": 10,
 	"ejectedMassRadius": 15,
