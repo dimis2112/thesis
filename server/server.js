@@ -98,6 +98,7 @@ let rooms = {
 // if (process.env.PORT == 3000) {
 //     game.load_bot_rooms(rooms, 130);
 // }
+
 //game.load_bot_rooms(rooms, gc.num_of_bot_rooms);
 
 // konta sto 380 einai to orio , gia parapanw de ksekinaei kan
@@ -110,20 +111,17 @@ io.on('connection', function (client) {
 
     // create entry on players object 
     players[client.id] = {
-        bot: false,
-        game_object: null,
-        socket: client,
         name: null,
         hue: null,
         border_hue: null,
+        bot: false,
+        game_object: null,
+        socket: client,
         roomId: null,
         roomName: null,
         ready_to_go: false,
         father_id: util.makeid(3),
         i_am_new_ticks: 3,
-        my_updates: [],
-        my_update_ticks: 0,
-
 
     }
 
@@ -220,6 +218,8 @@ io.on('connection', function (client) {
             prediction_flag: server_settings.prediction_flag,
             score_words_flag: server_settings.score_words_flag
         }
+
+        // console.log(players);
 
         client.emit('init', package);
     });
@@ -472,6 +472,8 @@ io.on('connection', function (client) {
 
         });
         // we need to set null the admin of the room so the server wont break if admin leaves during count-down
+
+        //console.log(rooms);
         rooms[players[client.id].roomId].admin = {};
         rooms[players[client.id].roomId].active = true;
         rooms[players[client.id].roomId].state = "playing";
@@ -550,11 +552,12 @@ io.on('connection', function (client) {
             invitation_id: invitation_id,
             room_admin: players[client.id].name,
             room_name: players[client.id].roomName,
-            room_id: players[client.id].roomId
+            room_id: players[client.id].roomId,
+
 
         }
 
-
+        console.log(invitations);
 
         // sends back to the client-room admin the id for the link
         client.emit('invitation id', invitation_id);
@@ -791,7 +794,8 @@ function game_world_update() {
                                     viruses.splice(virusIndex, 1);
 
                                     // do the virus-split on the cell
-                                    players[id].game_object.virusSplit(cell)
+                                    if (!players[id].game_object.bot)
+                                        players[id].game_object.virusSplit(cell)
 
                                     players[id].game_object.score.virusEaten += 1;
 
@@ -980,7 +984,7 @@ function game_world_update() {
                                                     io.to(roomId).emit('he is ghost', players[id2].father_id);
 
                                                     // ghost looses score 
-                                                    let reduction = Math.floor(0.2 * players[id2].game_object.totalScore);
+                                                    let reduction = Math.floor(gc.scoreFromEllimination * players[id2].game_object.totalScore);
                                                     players[id2].game_object.score.score_reductions.push(reduction);
 
                                                     // winner gains score 
@@ -2156,70 +2160,80 @@ setInterval(() => {
         let players = rooms[roomId].players;
         let array = [];
 
-        //order players by mass
-        Object.keys(players).forEach((id) => {
-            // console.log(players[id]);
-            if (players[id].game_object != null) {
+        if (rooms[roomId].active) {
 
-                let object = {
-                    username: players[id].name,
-                    mass: players[id].game_object.totalMass,
-                    id: id,
-                    itsMe: false,
-                    position: null
+
+
+            //order players by mass
+            Object.keys(players).forEach((id) => {
+                // console.log(players[id]);
+                if (players[id].game_object != null) {
+
+                    let object = {
+                        username: players[id].name,
+                        mass: players[id].game_object.totalMass,
+                        id: id,
+                        itsMe: false,
+                        position: null
+                    }
+
+                    array.push(object)
+                }
+            })
+
+
+            let sorted_array = array.sort((a, b) => b.mass - a.mass);
+            //find self position
+            // array.reverse();
+
+
+
+            Object.keys(players).forEach((id) => {
+
+                // if player is a bot dont send leaderboards
+                if (players[id].bot) {
+
+                    //idle 
+                    // console.log(players[id].game_object);
+
+                    return;
                 }
 
-                array.push(object)
-            }
-        })
+                let my_position;
+                let array2 = [...sorted_array];
 
-
-        let sorted_array = array.sort((a, b) => b.mass - a.mass);
-        //find self position
-        // array.reverse();
-
-
-
-        Object.keys(players).forEach((id) => {
-
-            // if player is a bot dont send leaderboards
-            if (players[id].bot) {
-
-                //idle 
-                // console.log(players[id].game_object);
-
-                return;
-            }
-
-            let my_position;
-            let array2 = [...sorted_array];
-
-            for (i = 0; i < array2.length; i++) {
-                if (array2[i].id == id) {
-                    my_position = i + 1;
-                    array2[i].itsMe = true;
-                } else {
-                    array2[i].itsMe = false;
+                for (i = 0; i < array2.length; i++) {
+                    if (array2[i].id == id) {
+                        my_position = i + 1;
+                        array2[i].itsMe = true;
+                    } else {
+                        array2[i].itsMe = false;
+                    }
+                    array2[i].position = i + 1;
+                    // delete array2[i].id;
                 }
-                array2[i].position = i + 1;
-                // delete array2[i].id;
+
+                array2.slice(0, 9);
+                if (my_position > 10) {
+                    array2.push({
+                        username: players[id].name,
+                        mass: players[id].game_object.totalMass,
+                        position: my_position,
+                        itsMe: true
+                    });
+                }
+
+                players[id].socket.emit('Leaderboard', array2);
             }
 
-            array2.slice(0, 9);
-            if (my_position > 10) {
-                array2.push({
-                    username: players[id].name,
-                    mass: players[id].game_object.totalMass,
-                    position: my_position,
-                    itsMe: true
-                });
-            }
-
-            players[id].socket.emit('Leaderboard', array2);
-        })
+            )
+        }
 
 
-    })
+
+
+    }
+    )
 
 }, 2000);
 

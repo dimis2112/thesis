@@ -3357,9 +3357,9 @@ function handleSocket(socket) {
         document.querySelector('#foodsEaten').innerHTML = "Foods Eaten : " + score.foodsEaten;
         document.querySelector('#cellsEaten').innerHTML = "Cells Eaten : " + score.cellsEaten;
         document.querySelector('#eliminations').innerHTML = "Eliminations : " + score.eliminations;
-        document.querySelector('#highestMass').innerHTML = "Highest Mass Reached : " + score.highestMassReached;
-        document.querySelector('#timeStayedAlive').innerHTML = "Time Stayed Alive : " + score.timeStayedAlive;
-        document.querySelector('#highestPosition').innerHTML = "Highest Position : " + score.highestPosition;
+        // document.querySelector('#highestMass').innerHTML = "Highest Mass Reached : " + score.highestMassReached;
+        // document.querySelector('#timeStayedAlive').innerHTML = "Time Stayed Alive : " + score.timeStayedAlive;
+        // document.querySelector('#highestPosition').innerHTML = "Highest Position : " + score.highestPosition;
 
         document.querySelector("#countDownTimer").style.display = 'none';
 
@@ -3462,11 +3462,11 @@ function handleMouseMove(event) {
 }
 
 function start_target_interval() {
-    setInterval(() => {
-        socket.emit('sendTarget', target);
-        vision_offset.x = 0.5 * target.x;
-        vision_offset.y = 0.5 * target.y;
-    }, 1000 / 60);
+    // setInterval(() => {
+    //     socket.emit('sendTarget', target);
+    //     vision_offset.x = 0.5 * target.x;
+    //     vision_offset.y = 0.5 * target.y;
+    // }, 1000 / 60);
 }
 
 

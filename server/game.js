@@ -42,7 +42,7 @@ class Player {
 
       eliminations: 0,
       highestMassReached: gc.initialMass,
-      timeStayedAlive: 0,
+      // timeStayedAlive: 0,
       highestPosition: 100
     }
     this.totalScore = 0;
@@ -87,6 +87,9 @@ class Player {
   updateMass() {
     this.totalMass = 0;
     this.cells.forEach((cell) => {
+
+      cell.radius = Math.floor(cell.radius);
+      cell.mass = Math.floor(cell.mass);
       cell.mass = cell.radius;
       this.totalMass += cell.mass
     });
@@ -260,7 +263,7 @@ class Player {
         if (cell.virus) {
           newCells.push({
             mass: Math.floor(cell.mass / 2),
-            radius: util.massToRadius(cell.mass / 2),
+            radius: Math.floor(util.massToRadius(cell.mass / 2)),
             pos: { x: cell.pos.x, y: cell.pos.y },
             throw: false,
             catapultForce: {
@@ -269,7 +272,7 @@ class Player {
             pre_split_data: {
               x: cell.pos.x,
               y: cell.pos.y,
-              radius: util.massToRadius(cell.mass / 2)
+              radius: Math.floor(util.massToRadius(cell.mass / 2))
             },
             mergeCooldown: gc.mergeCooldown,
             //merged: false,
@@ -280,7 +283,7 @@ class Player {
           });
           newCells.push({
             mass: Math.floor(cell.mass / 2),
-            radius: util.massToRadius(cell.mass / 2),
+            radius: Math.floor(util.massToRadius(cell.mass / 2)),
             pos: { x: cell.pos.x, y: cell.pos.y },
             throw: false,
             catapultForce: {
@@ -296,7 +299,7 @@ class Player {
         } else {
           newCells.push({
             mass: Math.floor(cell.mass / 2),
-            radius: util.massToRadius(cell.mass / 2),
+            radius: Math.floor(util.massToRadius(cell.mass / 2)),
             pos: { x: cell.pos.x, y: cell.pos.y },
             throw: false,
             catapultForce: {
@@ -305,7 +308,7 @@ class Player {
             pre_split_data: {
               x: cell.pos.x,
               y: cell.pos.y,
-              radius: util.massToRadius(cell.mass / 2)
+              radius: Math.floor(util.massToRadius(cell.mass / 2))
             },
             mergeCooldown: gc.mergeCooldown,
             //merged: false,
@@ -364,6 +367,9 @@ class Player {
     cell.radius /= 4;
     cell.mass /= 4;
 
+    cell.radius = Math.floor(cell.radius);
+    cell.mass = Math.floor(cell.mass);
+
     let speed = 20;
     let angle = Math.PI / 4;
     let dx = Math.cos(angle);
@@ -384,7 +390,7 @@ class Player {
       angle += Math.PI / 2;
       if (i == 2) {
         let newCell = {
-          mass: cell.mass,
+          mass: Math.floor(cell.mass),
           radius: util.massToRadius(cell.mass),
           pos: { x: cell.pos.x, y: cell.pos.y },
           throw: false,
@@ -394,7 +400,7 @@ class Player {
           pre_split_data: {
             x: cell.pos.x,
             y: cell.pos.y,
-            radius: util.massToRadius(cell.mass / 2)
+            radius: Math.floor(util.massToRadius(cell.mass / 2))
           },
           mergeCooldown: 500,
           merge_able: false,
@@ -405,7 +411,7 @@ class Player {
       }
       else {
         let newCell = {
-          mass: cell.mass,
+          mass: Math.floor(cell.mass),
           radius: util.massToRadius(cell.mass),
           pos: { x: cell.pos.x, y: cell.pos.y },
           throw: false,
@@ -415,7 +421,7 @@ class Player {
           pre_split_data: {
             x: cell.pos.x,
             y: cell.pos.y,
-            radius: util.massToRadius(cell.mass / 2)
+            radius: Math.floor(util.massToRadius(cell.mass / 2))
           },
           mergeCooldown: 500,
           merge_able: false,

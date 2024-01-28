@@ -2,14 +2,14 @@
 	"gameWidth": 3000,
 	"gameHeight": 3000,
 
-	"initialMass": 60,
-	"initialRadius": 60,
+	"initialMass": 120,
+	"initialRadius": 120,
 	"maxTotalMass": 300,
 	"maxMassReachedTicks": 700,
 	"mergeCooldown": 500,
 
 	"numOfFoods": 200,
-	"roomGameDuration": 100,
+	"roomGameDuration": 10,
 	"virusRadius": 100,
 	"numOfViruses": 10,
 	"ejectedMassRadius": 15,
@@ -18,10 +18,11 @@
 	"scoreFromCell": 10,
 	"scoreFromVirus": 20,
 	"scoreFromMaxMass": 50,
+	"scoreFromEllimination": 0.2,
 
 	"betterPosition": true,
 
 	"broadcast_ups": 60,
 	"gameWorld_ups": 60,
-	"num_of_bot_rooms": 300
+	"num_of_bot_rooms": 150
 }
