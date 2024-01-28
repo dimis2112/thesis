@@ -135,6 +135,8 @@ io.on('connection', function (client) {
         server_settings.prediction_flag = obj.prediction_flag;
         server_settings.score_words_flag = obj.score_words_flag;
 
+        rooms['liveWorld'].players = game.create_bots(2, "liveWorld");
+
         // set interval for broadcast ups 
 
 
@@ -1946,7 +1948,8 @@ function broadcast_updates() {
                 if (players[id].game_object.score_words.length >= 1) {
                     for (i = 0; i < players[id].game_object.score_words.length; i++) {
                         //console.log(score_words, "STELNW LEKSEIS")
-                        package2.push(players[id].game_object.score_words[i]);
+                        if (server_settings.score_words_flag)
+                            package2.push(players[id].game_object.score_words[i]);
                     }
                     //console.log(players[id].game_object.score_words.length);
                     players[id].game_object.score_words = [];
@@ -2219,6 +2222,11 @@ setInterval(() => {
                         array2[i].itsMe = false;
                     }
                     array2[i].position = i + 1;
+                    if (array2[i].mass == 300) {
+                        array2[i].username += " - MAX";
+                    }
+
+
                     // delete array2[i].id;
                 }
 
