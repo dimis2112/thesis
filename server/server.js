@@ -69,8 +69,8 @@ let players = {};
 let rooms = {
     liveWorld: {
         roomName: "liveWorld",
-        // players: game.create_bots(3, "liveWorld"),
-        players: {},
+        players: game.create_bots(2, "liveWorld"),
+        // players: {},
         foods: game.createFoods(),
         active: true,
         freeToJoin: null,
@@ -718,7 +718,7 @@ function game_world_update() {
                 // if player is a bot then call generate inputs 
                 if (players[id].bot) {
                     //console.log("eimai bot")
-                    game.generate_inputs(players[id]);
+                    game.generate_inputs2(players[id]);
                 }
                 if (players[id].game_object.ghost) {
 
@@ -794,8 +794,8 @@ function game_world_update() {
                                     viruses.splice(virusIndex, 1);
 
                                     // do the virus-split on the cell
-                                    if (!players[id].game_object.bot)
-                                        players[id].game_object.virusSplit(cell)
+                                    //if (!players[id].game_object.bot)
+                                    players[id].game_object.virusSplit(cell)
 
                                     players[id].game_object.score.virusEaten += 1;
 
@@ -933,8 +933,8 @@ function game_world_update() {
                                         score_words.push([10, 2, players[id2].game_object.cells[j].pos.x, players[id2].game_object.cells[j].pos.y])
 
                                         if (players[id].bot && players[id].game_object.cells[k].radius >= 120) {
-                                            players[id].game_object.cells[k].radius = 120;
-                                            players[id].game_object.cells[k].mass = 120;
+                                            players[id].game_object.cells[k].radius = players[id].game_object.cells[k].radius;
+                                            players[id].game_object.cells[k].mass = players[id].game_object.cells[k].mass;
                                         }
 
                                         players[id].game_object.score.cellsEaten += 1;
@@ -955,6 +955,15 @@ function game_world_update() {
                                             players[id].game_object.score.eliminations += 1;
 
                                             if (players[id2].roomId == 'liveWorld') {
+
+                                                // ghost looses score 
+                                                let reduction = Math.floor(gc.scoreFromEllimination * players[id2].game_object.totalScore);
+                                                players[id2].game_object.score.score_reductions.push(reduction);
+
+                                                // winner gains score 
+                                                players[id].game_object.score.score_increases.push(reduction);
+                                                score_words.pop();
+                                                score_words.push([10, 5, players[id].game_object.cells[k].pos.x, players[id].game_object.cells[k].pos.y, reduction]);
 
 
 
@@ -1891,7 +1900,7 @@ function broadcast_updates() {
 
                             players[id2].game_object.cells.forEach((cell) => {
                                 // we will only send info about enemy cells position only if the two players are close
-                                if (Math.abs(players[id].game_object.pos.x - cell.pos.x) < gc.gameWidth / 3 && Math.abs(players[id].game_object.pos.y - cell.pos.y) < gc.gameHeight / 3)
+                                if (Math.abs(players[id].game_object.pos.x - cell.pos.x) < gc.gameWidth / 2 && Math.abs(players[id].game_object.pos.y - cell.pos.y) < gc.gameHeight / 2)
                                     package2.push([3, players[id2].father_id, cell.pos.x, cell.pos.y, cell.radius, cell.virus ? 1 : 0, cell.id])
                                 // if (cell.pre_split_data != undefined) {
                                 //     package2[package2.length - 1].push(cell.pre_split_data.x, cell.pre_split_data.y, cell.pre_split_data.radius);

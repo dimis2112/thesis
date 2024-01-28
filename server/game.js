@@ -651,12 +651,34 @@ function create_bots(num, room_name) {
 
     bot.bot = true;
     bot.name = player_name;
-    bot.pos = { x: 300 + 500 * i, y: 1500 }
-    bot.cells[0].pos = { x: 300 + 400 * i, y: 1500 };
+    //  bot.pos = { x: 300 + 500 * i, y: 1500 }
+    // bot.cells[0].pos = { x: 300 + 400 * i, y: 1500 };
     bot.hue = util.randomColor();
     bot.border_hue = util.randomColor();
     bot.input_ticks = 100;
     bot.direction = 1;
+    bot.totalScore = 200;
+
+    if (num == 2) {
+      if (i == 0) {
+        bot.cells[0].radius = 150;
+        bot.pos = { x: 1000, y: 1500 }
+        bot.cells[0].pos = { x: 1000, y: 1500 }
+        bot.totalScore = 200;
+        bot.target = { x: 1000, y: 1500 }
+      }
+
+      if (i == 1) {
+        bot.cells[0].radius = 300;
+        bot.pos = { x: 2000, y: 1500 }
+        bot.cells[0].pos = { x: 2000, y: 1500 }
+        bot.totalScore = 200;
+        bot.target = { x: 2000, y: 1500 }
+      }
+
+    }
+
+
 
 
     players[player_id] = {
@@ -678,6 +700,26 @@ function create_bots(num, room_name) {
 
   return players;
   // prepei na epistrefei ena {} prosoxh !! 
+}
+
+function generate_inputs2(bot) {
+
+  if (bot.game_object.cells.length == 0)
+    return;
+
+
+  let target = { x: 0, y: 0 }
+  // console.log("poops", target);
+  bot.game_object.target = target;
+  //updateTarget(target, bot.game_object);
+
+  bot.game_object.input_ticks -= 1;
+  if (bot.game_object.input_ticks == 0) {
+
+    bot.game_object.direction *= -1;
+    bot.game_object.input_ticks = 200;
+  }
+
 }
 
 function generate_inputs(bot) {
@@ -758,4 +800,4 @@ function newPlayer(array) {
 
 }
 
-module.exports = { newPlayer, createViruses, createFoods, updateTarget, regenerateFoods, regenerateViruses, generate_inputs, load_bot_rooms, create_bots }
+module.exports = { newPlayer, createViruses, createFoods, updateTarget, regenerateFoods, regenerateViruses, generate_inputs, generate_inputs2, load_bot_rooms, create_bots }

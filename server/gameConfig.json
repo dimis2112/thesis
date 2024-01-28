@@ -2,8 +2,8 @@
 	"gameWidth": 3000,
 	"gameHeight": 3000,
 
-	"initialMass": 120,
-	"initialRadius": 120,
+	"initialMass": 50,
+	"initialRadius": 50,
 	"maxTotalMass": 300,
 	"maxMassReachedTicks": 700,
 	"mergeCooldown": 500,
