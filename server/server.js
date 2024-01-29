@@ -916,7 +916,7 @@ function game_world_update() {
                                         if (players[id].game_object.totalMass < gc.maxTotalMass) {
                                             let res = gc.maxTotalMass - players[id].game_object.totalMass;
 
-                                            let increase = Math.floor(0.2 * players[id2].game_object.cells[j].radius);
+                                            let increase = Math.floor(gc.massStollen * players[id2].game_object.cells[j].radius);
 
                                             if (increase >= res) {
                                                 players[id].game_object.cells[k].radius += res;

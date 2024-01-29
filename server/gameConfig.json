@@ -20,6 +20,8 @@
 	"scoreFromMaxMass": 50,
 	"scoreFromEllimination": 0.2,
 
+	"massStollen": 0.4,
+
 	"betterPosition": true,
 
 	"broadcast_ups": 60,
