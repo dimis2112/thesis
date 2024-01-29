@@ -127,12 +127,12 @@ io.on('connection', function (client) {
 
     client.on("server_settings", (obj) => {
         console.log(obj);
-        server_settings.latency_flag = obj.latency_flag;
-        server_settings.ups = obj.ms;
+        // server_settings.latency_flag = obj.latency_flag;
+        // server_settings.ups = obj.ms;
 
 
-        server_settings.interpollation_flag = obj.interpollation_flag;
-        server_settings.prediction_flag = obj.prediction_flag;
+        // server_settings.interpollation_flag = obj.interpollation_flag;
+        // server_settings.prediction_flag = obj.prediction_flag;
         server_settings.score_words_flag = obj.score_words_flag;
 
         rooms['liveWorld'].players = game.create_bots(2, "liveWorld");
