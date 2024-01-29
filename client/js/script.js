@@ -384,7 +384,7 @@ function animloop() {
         if (game_over) {
             cancelAnimationFrame(animationId);
             c.restore();
-            ever_changing_value;
+            ever_changing_value = 0;
             updates_received = 2;
             return;
         }
@@ -1131,6 +1131,7 @@ style_card_cell_name.addEventListener("change", () => {
 // Graphicks
 
 let ever_changing_value = 0.00;
+let ever_changing_value_increase = 0.0005 / 2;
 
 function drawWords() {
 
@@ -1217,7 +1218,7 @@ function drawPlayerWithPoints() {
                 let cpy = cell.pos.y + 1.5 * cell.radius * Math.sin(spin + increase / 2) + 0.1 * cell.radius * Math.sin(spin + increase / 2) * Math.cos(ever_changing_value);
 
 
-                ever_changing_value += 0.0005;
+                ever_changing_value += ever_changing_value_increase;
 
 
 
@@ -1272,7 +1273,7 @@ function drawPlayerWithPoints() {
                 let cpy = cell.pos.y + cell.radius * Math.sin(spin + increase / 2) + 0 * cell.radius * Math.sin(spin + increase / 2) * (Math.cos(ever_changing_value + spin));
 
 
-                ever_changing_value += 0.0005;
+                ever_changing_value += ever_changing_value_increase;
 
 
 
@@ -1404,7 +1405,7 @@ function drawEnemies2() {
                     let cpy = cell.pos.y + 1.5 * cell.radius * Math.sin(spin + increase / 2) + 0.1 * cell.radius * Math.sin(spin + increase / 2) * Math.cos(ever_changing_value);
 
 
-                    ever_changing_value += 0.0005;
+                    ever_changing_value += ever_changing_value_increase;
 
 
 
@@ -1459,7 +1460,7 @@ function drawEnemies2() {
                     let cpy = cell.pos.y + cell.radius * Math.sin(spin + increase / 2) + 0 * cell.radius * Math.sin(spin + increase / 2) * (Math.cos(ever_changing_value + spin));
 
 
-                    ever_changing_value += 0.0005;
+                    ever_changing_value += ever_changing_value_increase;
 
 
 
@@ -1610,7 +1611,7 @@ function drawEnemies3() {
                 let cpy = cell.pos.y + 1.5 * cell.radius * Math.sin(spin + increase / 2) + 0.1 * cell.radius * Math.sin(spin + increase / 2) * Math.cos(ever_changing_value);
 
 
-                ever_changing_value += 0.0005;
+                ever_changing_value += ever_changing_value_increase;
 
 
 
@@ -1665,7 +1666,7 @@ function drawEnemies3() {
                 let cpy = cell.pos.y + cell.radius * Math.sin(spin + increase / 2) + 0 * cell.radius * Math.sin(spin + increase / 2) * (Math.cos(ever_changing_value + spin));
 
 
-                ever_changing_value += 0.0005;
+                ever_changing_value += ever_changing_value_increase;
 
 
 
@@ -2028,7 +2029,7 @@ function drawViruses() {
             let cpy = cell.pos.y + 1.5 * cell.radius * Math.sin(spin + increase / 2) + 0.1 * cell.radius * Math.sin(spin + increase / 2) * Math.cos(ever_changing_value);
 
 
-            ever_changing_value += 0.0005;
+            ever_changing_value += ever_changing_value_increase;
 
 
 
