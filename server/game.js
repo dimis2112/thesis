@@ -39,7 +39,7 @@ class Player {
       score_reductions: [],
       score_increases: [],
 
-
+      totalScore: 0,
       eliminations: 0,
       highestMassReached: gc.initialMass,
       // timeStayedAlive: 0,
@@ -80,6 +80,7 @@ class Player {
     })
 
     this.totalScore = totalScore;
+    this.score.totalScore = totalScore;
     return totalScore;
 
 

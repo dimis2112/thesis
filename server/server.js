@@ -2223,7 +2223,7 @@ setInterval(() => {
                     }
                     array2[i].position = i + 1;
                     if (array2[i].mass == 300) {
-                        array2[i].username += " - MAX";
+                        array2[i].username += "-MAX";
                     }
 
 
