@@ -9,7 +9,7 @@
 	"mergeCooldown": 500,
 
 	"numOfFoods": 200,
-	"roomGameDuration": 90,
+	"roomGameDuration": 180,
 	"virusRadius": 100,
 	"numOfViruses": 10,
 	"ejectedMassRadius": 15,
