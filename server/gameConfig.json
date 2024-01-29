@@ -5,7 +5,7 @@
 	"initialMass": 50,
 	"initialRadius": 50,
 	"maxTotalMass": 300,
-	"maxMassReachedTicks": 700,
+	"maxMassReachedTicks": 800,
 	"mergeCooldown": 500,
 
 	"numOfFoods": 200,
