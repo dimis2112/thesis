@@ -136,6 +136,7 @@ io.on('connection', function (client) {
         server_settings.score_words_flag = obj.score_words_flag;
 
         rooms['liveWorld'].players = game.create_bots(2, "liveWorld");
+        rooms['liveWorld'].viruses = game.createViruses();
 
         // set interval for broadcast ups 
 
