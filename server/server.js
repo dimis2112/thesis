@@ -140,9 +140,9 @@ io.on('connection', function (client) {
         // set interval for broadcast ups 
 
 
-        clearInterval(broadcastInterval);
+        //  clearInterval(broadcastInterval);
 
-        broadcastInterval = setInterval(broadcast_updates, 1000 / server_settings.ups)
+        //  broadcastInterval = setInterval(broadcast_updates, 1000 / server_settings.ups)
 
     })
 
