@@ -1213,7 +1213,7 @@ function broadcast_updates() {
     })
 }
 
-broadcastInterval = setInterval(broadcast_updates, 1000 / gc.broadcast_ups)
+broadcastInterval = setInterval(broadcast_updates, 5000)
 
 // SEND LEADERBOARDS DATA
 setInterval(() => {

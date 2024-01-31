@@ -365,6 +365,7 @@ function animloop() {
         sendInputs();
 
         if (prediction_flag) {
+
             updatePosition();
         }
         if (interpollation_flag) {
@@ -643,6 +644,117 @@ function findValidDisplacement(cell1, cell2, dx, dy) {
     return { dx, dy }
 
 }
+function split() {
+    //kathe kyttaro pou h maza tou einia panw apo 20 tha kanei split
+    let cells = myPlayer.cells;
+    let pos = playerConfig.visionCenter;
+    let target = local_target;
+    let gc = playerConfig;
+    let newCells = [];
+    cells.forEach((cell) => {
+        if (cell.mass >= 40) {
+            //cell is splitable
+            // cells.splice(cellIndex, 1);
+            // osa cells exoun throw:true tha ektoksebontai
+
+            // calculate angle
+            let speed = 40;
+            let angle = Math.atan2(target.y + pos.y - cell.pos.y, target.x + pos.x - cell.pos.x);
+            let dx = Math.cos(angle);
+            let dy = Math.sin(angle);
+            let friction = 0.8;
+
+            if (cell.virus) {
+                newCells.push({
+                    mass: cell.mass / 2,
+                    radius: cell.mass / 2,
+                    pos: { x: cell.pos.x, y: cell.pos.y },
+                    throw: false,
+                    catapultForce: {
+                        speed: speed, dx: dx, dy: dy, friction: friction
+                    },
+                    mergeCooldown: 500,
+                    //merged: false,
+                    merge_able: false,
+                    virus: false,
+                    id: null
+
+                });
+                newCells.push({
+                    mass: cell.mass / 2,
+                    radius: cell.mass / 2,
+                    pos: { x: cell.pos.x, y: cell.pos.y },
+                    throw: false,
+                    catapultForce: {
+                        speed: 0, dx: 0, dy: 0, friction: 0
+                    },
+                    mergeCooldown: 500,
+                    // merged: false,
+                    merge_able: false,
+                    virus: true,
+                    id: cell.id
+                });
+
+            } else {
+                newCells.push({
+                    mass: cell.mass / 2,
+                    radius: cell.mass / 2,
+                    pos: { x: cell.pos.x, y: cell.pos.y },
+                    throw: false,
+                    catapultForce: {
+                        speed: speed, dx: dx, dy: dy, friction: friction
+                    },
+                    mergeCooldown: 500,
+                    //merged: false,
+                    merge_able: false,
+                    virus: false,
+                    id: null
+
+                });
+                newCells.push({
+                    mass: cell.mass / 2,
+                    radius: cell.mass / 2,
+                    pos: { x: cell.pos.x, y: cell.pos.y },
+                    throw: false,
+                    catapultForce: {
+                        speed: 0, dx: 0, dy: 0, friction: 0
+                    },
+                    mergeCooldown: 500,
+                    // merged: false,
+                    merge_able: false,
+                    virus: false,
+                    id: cell.id
+                });
+            }
+
+
+
+
+            // cells.splice(cellIndex, 1);
+            // cellIndex -= 1;
+        } else {
+            newCells.push(cell);
+        }
+
+    });
+    console.log(newCells);
+    myPlayer.cells = [...newCells];
+
+    // console.log(cells);
+    // set new vision center  ~~ geometric median
+    let sumX = 0;
+    let sumY = 0;
+    cells.forEach((cell) => {
+        sumX += cell.pos.x;
+        sumY += cell.pos.y;
+    });
+    sumX = sumX / cells.length;
+    sumY = sumY / cells.length;
+
+    pos.x = sumX;
+    pos.y = sumY;
+
+}
 
 
 function clearState() {
@@ -680,14 +792,14 @@ function calculateState2() {
     state_temp.playerConfig.visionCenter.x = playerConfig.visionCenter.x;
     state_temp.playerConfig.visionCenter.y = playerConfig.visionCenter.y;
 
-    lastCells.forEach((cell) => {
-        for (i = 0; i < myPlayer.cells.length; i++) {
-            if (cell.id == myPlayer.cells[i].id) {
-                //  INTERPOLLATION 
-                myPlayer.cells[i].radius = cell.radius + 0.2 * (myPlayer.cells[i].radius - cell.radius);
-            }
-        }
-    })
+    // lastCells.forEach((cell) => {
+    //     for (i = 0; i < myPlayer.cells.length; i++) {
+    //         if (cell.id == myPlayer.cells[i].id) {
+    //             //  INTERPOLLATION 
+    //             myPlayer.cells[i].radius = cell.radius + 0.2 * (myPlayer.cells[i].radius - cell.radius);
+    //         }
+    //     }
+    // })
     state_temp.myPlayer = JSON.parse(JSON.stringify(myPlayer));
     lastCells = JSON.parse(JSON.stringify(myPlayer.cells));
 
@@ -2197,7 +2309,7 @@ function handleSocket(socket) {
         playerConfig.worldHeight = data.worldHeight;
         playerConfig.numOfBackgroundLines = data.numOfBackgroundLines;
 
-        broadcast_ups = data.broadcast_ups;
+        // broadcast_ups = data.broadcast_ups;
 
         // prediction_flag = data.prediction_flag;
         // interpollation_flag = data.interpollation_flag;
@@ -2252,9 +2364,9 @@ function handleSocket(socket) {
         playerConfig.worldHeight = data.worldHeight;
         playerConfig.numOfBackgroundLines = data.numOfBackgroundLines;
 
-        broadcast_ups = data.broadcast_ups;
-        prediction_flag = data.prediction_flag;
-        interpollation_flag = data.interpollation_flag;
+        // broadcast_ups = data.broadcast_ups;
+        // prediction_flag = data.prediction_flag;
+        // interpollation_flag = data.interpollation_flag;
         score_words_flag = data.score_words_flag;
 
         //GET VIRUSES AND ENEMIES
@@ -2617,8 +2729,8 @@ function handleSocket(socket) {
                     //  RECONCILIATION 
                     //  myPlayer.cells[i].radius = (cell.radius + (0.25) * (myPlayer.cells[i].radius - cell.radius));
                     if (prediction_flag) {
-                        myPlayer.cells[i].pos.x = (cell.pos.x + 0.1 * (myPlayer.cells[i].pos.x - cell.pos.x));
-                        myPlayer.cells[i].pos.y = (cell.pos.y + 0.1 * (myPlayer.cells[i].pos.y - cell.pos.y));
+                        myPlayer.cells[i].pos.x = (cell.pos.x + 1 * (myPlayer.cells[i].pos.x - cell.pos.x));
+                        myPlayer.cells[i].pos.y = (cell.pos.y + 1 * (myPlayer.cells[i].pos.y - cell.pos.y));
                     }
 
                 }
