@@ -354,19 +354,17 @@ function start_game() {
 // }
 let lastTime = Date.now();
 let now;
-let dt = 0;
+let dt = 14;
 
 function animloop() {
     animationId = requestAnimationFrame(animloop);
-
     now = Date.now();
-
     if (now - lastTime > dt) {
         console.log(now - lastTime);
         lastTime = now;
         sendInputs();
-        if (prediction_flag) {
 
+        if (prediction_flag) {
             updatePosition();
         }
         if (interpollation_flag) {
@@ -389,40 +387,10 @@ function animloop() {
             return;
         }
 
-
     }
 
 }
 
-// function sendInputs() {
-
-//     let input_packet = [];
-
-//     // gather input events to a big packet
-//     inputs.forEach((input) => {
-//         if (input.triggered) {
-//             if (input.data) {
-//                 input_packet.push({
-//                     name: input.name,
-//                     data: input.data
-//                 })
-//             }
-//             else {
-//                 input_packet.push({
-//                     name: input.name,
-//                 })
-
-//             }
-
-//         }
-
-//         input.triggered = false;
-
-//     })
-
-//     socket.emit("player input", input_packet);
-
-// }
 
 
 function sendInputs() {
@@ -676,117 +644,6 @@ function findValidDisplacement(cell1, cell2, dx, dy) {
 
 }
 
-function split() {
-    //kathe kyttaro pou h maza tou einia panw apo 20 tha kanei split
-    let cells = myPlayer.cells;
-    let pos = playerConfig.visionCenter;
-    let target = local_target;
-    let gc = playerConfig;
-    let newCells = [];
-    cells.forEach((cell) => {
-        if (cell.mass >= 40) {
-            //cell is splitable
-            // cells.splice(cellIndex, 1);
-            // osa cells exoun throw:true tha ektoksebontai
-
-            // calculate angle
-            let speed = 40;
-            let angle = Math.atan2(target.y + pos.y - cell.pos.y, target.x + pos.x - cell.pos.x);
-            let dx = Math.cos(angle);
-            let dy = Math.sin(angle);
-            let friction = 0.8;
-
-            if (cell.virus) {
-                newCells.push({
-                    mass: cell.mass / 2,
-                    radius: cell.mass / 2,
-                    pos: { x: cell.pos.x, y: cell.pos.y },
-                    throw: false,
-                    catapultForce: {
-                        speed: speed, dx: dx, dy: dy, friction: friction
-                    },
-                    mergeCooldown: 500,
-                    //merged: false,
-                    merge_able: false,
-                    virus: false,
-                    id: null
-
-                });
-                newCells.push({
-                    mass: cell.mass / 2,
-                    radius: cell.mass / 2,
-                    pos: { x: cell.pos.x, y: cell.pos.y },
-                    throw: false,
-                    catapultForce: {
-                        speed: 0, dx: 0, dy: 0, friction: 0
-                    },
-                    mergeCooldown: 500,
-                    // merged: false,
-                    merge_able: false,
-                    virus: true,
-                    id: cell.id
-                });
-
-            } else {
-                newCells.push({
-                    mass: cell.mass / 2,
-                    radius: cell.mass / 2,
-                    pos: { x: cell.pos.x, y: cell.pos.y },
-                    throw: false,
-                    catapultForce: {
-                        speed: speed, dx: dx, dy: dy, friction: friction
-                    },
-                    mergeCooldown: 500,
-                    //merged: false,
-                    merge_able: false,
-                    virus: false,
-                    id: null
-
-                });
-                newCells.push({
-                    mass: cell.mass / 2,
-                    radius: cell.mass / 2,
-                    pos: { x: cell.pos.x, y: cell.pos.y },
-                    throw: false,
-                    catapultForce: {
-                        speed: 0, dx: 0, dy: 0, friction: 0
-                    },
-                    mergeCooldown: 500,
-                    // merged: false,
-                    merge_able: false,
-                    virus: false,
-                    id: cell.id
-                });
-            }
-
-
-
-
-            // cells.splice(cellIndex, 1);
-            // cellIndex -= 1;
-        } else {
-            newCells.push(cell);
-        }
-
-    });
-    console.log(newCells);
-    myPlayer.cells = [...newCells];
-
-    // console.log(cells);
-    // set new vision center  ~~ geometric median
-    let sumX = 0;
-    let sumY = 0;
-    cells.forEach((cell) => {
-        sumX += cell.pos.x;
-        sumY += cell.pos.y;
-    });
-    sumX = sumX / cells.length;
-    sumY = sumY / cells.length;
-
-    pos.x = sumX;
-    pos.y = sumY;
-
-}
 
 function clearState() {
     state.myFoods = [];
@@ -817,36 +674,17 @@ function calculateState2() {
 
     let time = Date.now();
 
-
     // do interpollation
-
-    // let int_factor = (time - target_state_r.time) / (1000 / broadcast_ups);
     let int_factor = (time - target_state_r.time) / (target_state_r.time - current_state.time);
-    // if (int_factor > 1) {
-    //     int_factor = 1;
-    // }
-
-    console.log("EKTYPWSA", int_factor);
-
-
-    // state_temp.playerConfig.visionCenter.x = current_state.playerConfig.visionCenter.x + 1 * (target_state_r.playerConfig.visionCenter.x - current_state.playerConfig.visionCenter.x);
-    // state_temp.playerConfig.visionCenter.y = current_state.playerConfig.visionCenter.y + 1 * (target_state_r.playerConfig.visionCenter.y - current_state.playerConfig.visionCenter.y);
 
     state_temp.playerConfig.visionCenter.x = playerConfig.visionCenter.x;
     state_temp.playerConfig.visionCenter.y = playerConfig.visionCenter.y;
-
-
-
-
 
     lastCells.forEach((cell) => {
         for (i = 0; i < myPlayer.cells.length; i++) {
             if (cell.id == myPlayer.cells[i].id) {
                 //  INTERPOLLATION 
                 myPlayer.cells[i].radius = cell.radius + 0.2 * (myPlayer.cells[i].radius - cell.radius);
-                // myPlayer.cells[i].pos.x = (myPlayer.cells[i].pos.x + 0.05 * (cell.pos.x - myPlayer.cells[i].pos.x));
-                // myPlayer.cells[i].pos.y = (myPlayer.cells[i].pos.y + 0.05 * (cell.pos.y - myPlayer.cells[i].pos.y));
-                //  myPlayer.cells[i].radius = (myPlayer.cells[i].radius + 0.0001 * (cell.radius - myPlayer.cells[i].radius));
             }
         }
     })
@@ -855,12 +693,7 @@ function calculateState2() {
 
     let enemy_cells = JSON.parse(JSON.stringify(target_state_r.myEnemies));
     let viruses = JSON.parse(JSON.stringify(target_state_r.myViruses));
-    //  let myCells = JSON.parse(JSON.stringify(target_state_r.myPlayer.cells));
-
     let found = false;
-
-
-
 
 
     enemy_cells.forEach((cell_t) => {
@@ -902,7 +735,6 @@ function calculateState2() {
 
     state_temp.myEnemies = JSON.parse(JSON.stringify(enemy_cells));
     state_temp.myViruses = JSON.parse(JSON.stringify(viruses));
-    // state_temp.myPlayer.cells = JSON.parse(JSON.stringify(myCells));
 
     state = JSON.parse(JSON.stringify(state_temp));
 
@@ -910,6 +742,8 @@ function calculateState2() {
 }
 
 function renderState() {
+
+
     c.save();
     clearCanvas2();
     c.translate(canvas.width / 2, canvas.height / 2);
@@ -2213,31 +2047,8 @@ let lastCells;
 let ping_array = [];
 function showPing(ping) {
 
-    // let ping = 0;
-    // ping = curr - prev;
-    // //  
-    // ping_array.push(ping);
 
-    // if (ping_array.length == 1000) {
-    //     //  find mean value
-    //     let mean = 0;
-    //     for (let i = 0; i < ping_array.length; i++) {
-    //         mean += ping_array[i];
-    //     }
-    //     mean = mean / ping_array.length;
-
-    //     // find max ping
-    //     let max = Math.max(...ping_array);
-
-    //     // show them to user
-    //     document.querySelector("#pingDiv").innerHTML = "Ping: " + ping;
-    //     document.querySelector("#pingDiv").innerHTML += "<br>"
-    //     document.querySelector("#pingDiv").innerHTML += `Spike: ` + max;
-    //     // clear array
-    //     ping_array = [];
-    // }
-
-    document.querySelector("#pingDiv").innerHTML = "Ping: " + ping;
+    document.querySelector("#pingDiv2").innerHTML = "Ping: " + ping;
 
 
 }
@@ -2360,6 +2171,17 @@ let updates;
 // sockets
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 function handleSocket(socket) {
+
+    setInterval(() => {
+        const start = Date.now();
+
+        socket.emit("ping", () => {
+            const duration = Date.now() - start;
+
+            console.log(duration);
+            document.querySelector("#latencyDiv").innerHTML = "Latency: " + duration;
+        });
+    }, 1000);
 
     socket.on('init', (data) => {
         previous_packet_time = Date.now();
@@ -3505,5 +3327,7 @@ function handleKeyDown(event) {
     }
 
 }
+
+
 
 // ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
