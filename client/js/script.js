@@ -2291,7 +2291,7 @@ let myMasses = {};
 let score_words = [];
 
 let interpollation_flag = true;
-let prediction_flag = false;
+let prediction_flag = true;
 let score_words_flag = true;
 let broadcast_ups = 60;
 
@@ -2683,8 +2683,9 @@ function handleSocket(socket) {
                         playerConfig.visionCenter.y = playerConfig.visionCenter.y + 1 * (y - playerConfig.visionCenter.y);
                     }
                     if (prediction_flag) {
-                        playerConfig.visionCenter.x = playerConfig.visionCenter.x + 0.1 * (x - playerConfig.visionCenter.x);
-                        playerConfig.visionCenter.y = playerConfig.visionCenter.y + 0.1 * (y - playerConfig.visionCenter.y);
+
+                        playerConfig.visionCenter.x = playerConfig.visionCenter.x + 1 * (x - playerConfig.visionCenter.x);
+                        playerConfig.visionCenter.y = playerConfig.visionCenter.y + 1 * (y - playerConfig.visionCenter.y);
                     }
 
                     //  playerConfig.visionCenter.x = visionCenter.x;
@@ -2935,8 +2936,8 @@ function handleSocket(socket) {
                     //  myPlayer.cells[i].radius = (cell.radius + (0.25) * (myPlayer.cells[i].radius - cell.radius));
                     if (prediction_flag) {
                         if (Math.abs(myPlayer.cells[i].pos.x - cell.pos.x) > 1000 || Math.abs(myPlayer.cells[i].pos.y - cell.pos.y) > 1000) {
-                            myPlayer.cells[i].pos.x = (cell.pos.x + 0.1 * (myPlayer.cells[i].pos.x - cell.pos.x));
-                            myPlayer.cells[i].pos.y = (cell.pos.y + 0.1 * (myPlayer.cells[i].pos.y - cell.pos.y));
+                            myPlayer.cells[i].pos.x = (cell.pos.x + 1 * (myPlayer.cells[i].pos.x - cell.pos.x));
+                            myPlayer.cells[i].pos.y = (cell.pos.y + 1 * (myPlayer.cells[i].pos.y - cell.pos.y));
                         }
                     }
 
