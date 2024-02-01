@@ -582,7 +582,7 @@ body {
 #pingDiv {
 	-webkit-text-stroke: 1px lightgray;
 
-	width: 10%;
+	width: 15%;
 
 	position: fixed;
 	top: 1vh;
@@ -601,7 +601,7 @@ body {
 
 	position: fixed;
 	top: 1vh;
-	left: 70%;
+	left: 75%;
 
 	z-index: 1;
 	opacity: 0.9;

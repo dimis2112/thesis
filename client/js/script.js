@@ -874,6 +874,7 @@ function renderState() {
     //drawEnemies2();
     drawEnemies3();
 
+    //  drawPlayerAU();
     drawPlayerWithPoints();
     if (score_words_flag)
         drawWords();
@@ -1123,6 +1124,196 @@ function drawWords() {
     })
 
 
+}
+function drawPlayerAU() {
+
+    c.save();
+
+    let myPlayer = myPlayer_au;
+    let playerConfig = state.playerConfig;
+
+
+    myPlayer.cells.forEach((cell) => {
+
+
+        c.globalAlpha = 0.2;
+        c.lineWidth = playerConfig.lineWidth;
+        c.strokeStyle = `hsla(${playerConfig.border_hue},100%,40%)`;
+        c.fillStyle = `hsla(${playerConfig.hue},100%,50%)`;
+        // // console.log(cell.radius);
+
+
+        var points = 20 + ~~(cell.mass / 5);
+        var increase = Math.PI * 2 / points; //  xwrizei se mikra toksa ton kyklo kai meta sto xStore mazeyei ta shmeia panw sthn perimetro tou
+
+        var xpoints = [];
+        var ypoints = [];
+        var cpx_points = [];
+        var cpy_points = [];
+
+
+        var spin = 0.0;
+
+        if (cell.virus == true) {
+            // console.log("BRHKA CELL ME VIRUS");
+            for (let i = 0; i < points; i++) {
+                let x = cell.pos.x + cell.radius * Math.cos(spin);
+                let y = cell.pos.y + cell.radius * Math.sin(spin);
+
+                let cpx = cell.pos.x + 1.5 * cell.radius * Math.cos(spin + increase / 2) + 0.1 * cell.radius * Math.cos(spin + increase / 2) * Math.cos(ever_changing_value);
+                let cpy = cell.pos.y + 1.5 * cell.radius * Math.sin(spin + increase / 2) + 0.1 * cell.radius * Math.sin(spin + increase / 2) * Math.cos(ever_changing_value);
+
+
+                ever_changing_value += ever_changing_value_increase;
+
+
+
+                if (x < 0) {
+                    x = 0;
+                }
+
+
+
+                if (y < 0) {
+                    y = 0;
+                }
+
+
+                if (x > playerConfig.worldWidth) {
+                    x = playerConfig.worldWidth;
+                }
+
+
+                if (y > playerConfig.worldHeight) {
+                    y = playerConfig.worldHeight;
+                }
+
+
+                spin += increase;
+                xpoints[i] = x;
+                ypoints[i] = y;
+                cpx_points[i] = cpx;
+                cpy_points[i] = cpy;
+            }
+            for (i = 0; i < points; ++i) {
+                if (i === 0) {
+                    c.beginPath();
+                    c.moveTo(xpoints[i], ypoints[i]);
+                } else if (i > 0 && i < points - 1) {
+                    c.quadraticCurveTo(cpx_points[i - 1], cpy_points[i - 1], xpoints[i], ypoints[i]);
+                } else {
+                    c.quadraticCurveTo(cpx_points[i - 1], cpy_points[i - 1], xpoints[i], ypoints[i]);
+                    c.quadraticCurveTo(cpx_points[i], cpy_points[i], xpoints[0], ypoints[0]);
+                }
+
+            }
+
+        }
+        else {
+
+            for (let i = 0; i < points; i++) {
+                let x = cell.pos.x + cell.radius * Math.cos(spin) + 0.1 * cell.radius * Math.cos(spin + Math.cos(ever_changing_value / 3));
+                let y = cell.pos.y + cell.radius * Math.sin(spin) + 0.1 * cell.radius * Math.sin(spin + Math.cos(ever_changing_value / 3));
+
+                let cpx = cell.pos.x + cell.radius * Math.cos(spin + increase / 2) + 0 * cell.radius * Math.cos(spin + increase / 2) * (Math.cos(ever_changing_value + spin));
+                let cpy = cell.pos.y + cell.radius * Math.sin(spin + increase / 2) + 0 * cell.radius * Math.sin(spin + increase / 2) * (Math.cos(ever_changing_value + spin));
+
+
+                ever_changing_value += ever_changing_value_increase;
+
+
+
+                if (x < 0) {
+                    x = 0;
+                }
+                if (cpx < 0) {
+                    cpx = 0;
+                }
+
+
+                if (y < 0) {
+                    y = 0;
+                }
+                if (cpy < 0) {
+                    cpy = 0;
+                }
+
+                if (x > playerConfig.worldWidth) {
+                    x = playerConfig.worldWidth;
+                }
+                if (cpx > playerConfig.worldWidth) {
+                    cpx = playerConfig.worldWidth;
+                }
+
+                if (y > playerConfig.worldHeight) {
+                    y = playerConfig.worldHeight;
+                }
+                if (cpy > playerConfig.worldHeight) {
+                    cpy = playerConfig.worldHeight;
+                }
+
+                spin += increase;
+                xpoints[i] = x;
+                ypoints[i] = y;
+                cpx_points[i] = cpx;
+                cpy_points[i] = cpy;
+            }
+
+            for (i = 0; i < points; ++i) {
+                if (i === 0) {
+                    c.beginPath();
+                    c.moveTo(xpoints[i], ypoints[i]);
+                } else if (i > 0 && i < points - 1) {
+                    c.lineTo(xpoints[i], ypoints[i]);
+                } else {
+                    c.lineTo(xpoints[i], ypoints[i]);
+                    c.lineTo(xpoints[0], ypoints[0]);
+                }
+
+            }
+
+        }
+
+
+
+        //  for (i = 0; i < points; ++i) {
+        //      if (i === 0) {
+        //          c.beginPath();
+        //          c.moveTo(xpoints[i], ypoints[i]);
+        //      } else if (i > 0 && i < points - 1) {
+        //          c.quadraticCurveTo(cpx_points[i - 1], cpy_points[i - 1], xpoints[i], ypoints[i]);
+        //      } else {
+        //          c.quadraticCurveTo(cpx_points[i - 1], cpy_points[i - 1], xpoints[i], ypoints[i]);
+        //          c.quadraticCurveTo(cpx_points[i], cpy_points[i], xpoints[0], ypoints[0]);
+        //      }
+
+        //  }
+
+        c.shadowColor = `hsla(${playerConfig.hue},100%,50%)`;
+        // c.shadowBlur = 80;
+        c.shadowOffsetX = 0;
+        c.shadowOffsetY = 0;
+
+
+        c.lineJoin = 'round';
+        c.lineCap = 'round';
+        c.fill();
+        c.stroke();
+
+        c.fillStyle = playerConfig.textColor;
+        c.strokeStyle = 'black';
+        //  c.textBorder = '10';
+        c.textAlign = 'center';
+        c.textBaseline = 'middle';
+        c.font = 'bold ' + cell.radius / 2 + 'px cursive';
+        c.lineWidth = 5;
+        c.strokeText(myPlayer.playerName, cell.pos.x, cell.pos.y);
+        c.lineWidth = playerConfig.lineWidth;
+        c.fillText(myPlayer.playerName, cell.pos.x, cell.pos.y);
+
+    })
+
+    c.restore();
 }
 
 function drawPlayerWithPoints() {
@@ -2082,6 +2273,16 @@ let myPlayer = {
     roomName: null
 };
 
+let myPlayer_au = {
+    cells: [],
+    playerName: '',
+    totalMass: 40,
+    initialMass: 40,
+    initialRadius: 40,
+    totalRadius: 40,
+    roomName: null
+}
+
 let myFoods = [];
 let myEnemies = [];
 let myEnemy_players = {};
@@ -2089,7 +2290,7 @@ let myViruses = [];
 let myMasses = {};
 let score_words = [];
 
-let interpollation_flag = true;
+let interpollation_flag = false;
 let prediction_flag = true;
 let score_words_flag = true;
 let broadcast_ups = 60;
@@ -2160,7 +2361,7 @@ let ping_array = [];
 function showPing(ping) {
 
 
-    document.querySelector("#pingDiv2").innerHTML = "Ping: " + ping;
+    document.querySelector("#pingDiv2").innerHTML = "Last Update: " + ping;
 
 
 }
@@ -2481,6 +2682,10 @@ function handleSocket(socket) {
                         playerConfig.visionCenter.x = playerConfig.visionCenter.x + 1 * (x - playerConfig.visionCenter.x);
                         playerConfig.visionCenter.y = playerConfig.visionCenter.y + 1 * (y - playerConfig.visionCenter.y);
                     }
+                    if (prediction_flag) {
+                        playerConfig.visionCenter.x = playerConfig.visionCenter.x + 0.1 * (x - playerConfig.visionCenter.x);
+                        playerConfig.visionCenter.y = playerConfig.visionCenter.y + 0.1 * (y - playerConfig.visionCenter.y);
+                    }
 
                     //  playerConfig.visionCenter.x = visionCenter.x;
                     //  playerConfig.visionCenter.y = visionCenter.y;
@@ -2717,7 +2922,7 @@ function handleSocket(socket) {
         lastCells = JSON.parse(JSON.stringify(myPlayer.cells));
         myPlayer.cells = cells;
 
-
+        myPlayer_au.cells = JSON.parse(JSON.stringify(cells));
 
 
 
@@ -2729,8 +2934,10 @@ function handleSocket(socket) {
                     //  RECONCILIATION 
                     //  myPlayer.cells[i].radius = (cell.radius + (0.25) * (myPlayer.cells[i].radius - cell.radius));
                     if (prediction_flag) {
-                        myPlayer.cells[i].pos.x = (cell.pos.x + 1 * (myPlayer.cells[i].pos.x - cell.pos.x));
-                        myPlayer.cells[i].pos.y = (cell.pos.y + 1 * (myPlayer.cells[i].pos.y - cell.pos.y));
+                        if (Math.abs(myPlayer.cells[i].pos.x - cell.pos.x) > 1000 || Math.abs(myPlayer.cells[i].pos.y - cell.pos.y) > 1000) {
+                            myPlayer.cells[i].pos.x = (cell.pos.x + 0.1 * (myPlayer.cells[i].pos.x - cell.pos.x));
+                            myPlayer.cells[i].pos.y = (cell.pos.y + 0.1 * (myPlayer.cells[i].pos.y - cell.pos.y));
+                        }
                     }
 
                 }

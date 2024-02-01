@@ -69,8 +69,8 @@ let players = {};
 let rooms = {
     liveWorld: {
         roomName: "liveWorld",
-        players: game.create_bots(2, "liveWorld"),
-        // players: {},
+        //  players: game.create_bots(2, "liveWorld"),
+        players: {},
         foods: game.createFoods(),
         active: true,
         freeToJoin: null,
@@ -1213,7 +1213,7 @@ function broadcast_updates() {
     })
 }
 
-broadcastInterval = setInterval(broadcast_updates, 5000)
+broadcastInterval = setInterval(broadcast_updates, 1000 / gc.broadcast_ups)
 
 // SEND LEADERBOARDS DATA
 setInterval(() => {

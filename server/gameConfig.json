@@ -24,7 +24,7 @@
 
 	"betterPosition": true,
 
-	"broadcast_ups": 60,
+	"broadcast_ups": 15,
 	"gameWorld_ups": 60,
 	"num_of_bot_rooms": 150
 }
