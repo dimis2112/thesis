@@ -2290,7 +2290,7 @@ let myViruses = [];
 let myMasses = {};
 let score_words = [];
 
-let interpollation_flag = false;
+let interpollation_flag = true;
 let prediction_flag = false;
 let score_words_flag = true;
 let broadcast_ups = 60;
