@@ -2931,8 +2931,8 @@ function handleSocket(socket) {
                     //  myPlayer.cells[i].radius = (cell.radius + (0.25) * (myPlayer.cells[i].radius - cell.radius));
                     if (prediction_flag) {
 
-                        myPlayer.cells[i].pos.x = (cell.pos.x + 0.1 * (myPlayer.cells[i].pos.x - cell.pos.x));
-                        myPlayer.cells[i].pos.y = (cell.pos.y + 0.1 * (myPlayer.cells[i].pos.y - cell.pos.y));
+                        myPlayer.cells[i].pos.x = (cell.pos.x + 0 * (myPlayer.cells[i].pos.x - cell.pos.x));
+                        myPlayer.cells[i].pos.y = (cell.pos.y + 0 * (myPlayer.cells[i].pos.y - cell.pos.y));
 
                     }
 
