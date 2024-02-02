@@ -224,6 +224,8 @@ io.on('connection', function (client) {
 
         // console.log(players);
 
+        players[client.id].game_object.score.timeStart = Date.now();
+
         client.emit('init', package);
     });
 
@@ -597,8 +599,13 @@ io.on('connection', function (client) {
 
     client.on("quit", () => {
 
-        if (players[client.id].game_object != null)
+        if (players[client.id].game_object != null) {
+
+            let endOfTime = Date.now();
+            players[client.id].game_object.score.timeStayedAlive = endOfTime - players[client.id].game_object.score.timeStart;
             client.emit("defeated", players[client.id].game_object.score);
+        }
+
 
 
     })
@@ -933,9 +940,12 @@ function game_world_update() {
 
                                                 if (!players[id2].bot && !players[id2].game_object.bot) {
                                                     // an den einai bot , steile defeated kanonika.
-                                                    if (players[id2].game_object != null)
+                                                    if (players[id2].game_object != null) {
+                                                        let endOfTime = Date.now();
+                                                        players[client.id].game_object.score.timeStayedAlive = endOfTime - players[client.id].game_object.score.timeStart;
                                                         players[id2].socket.emit('defeated', players[id2].game_object.score);
-                                                    // console.log("ESTEILA DEFEATED STON " + players[id2].name);
+                                                    }
+
                                                 }
 
 
@@ -1267,13 +1277,17 @@ setInterval(() => {
                     if (array2[i].id == id) {
                         my_position = i + 1;
                         array2[i].itsMe = true;
+                        if (array2[i].mass == 300) {
+                            array2[i].username += "-MAX";
+                        }
                     } else {
                         array2[i].itsMe = false;
+                        if (array2[i].mass == 300) {
+                            array2[i].username += "-MAX";
+                        }
                     }
                     array2[i].position = i + 1;
-                    if (array2[i].mass == 300) {
-                        array2[i].username += "-MAX";
-                    }
+
 
 
                     // delete array2[i].id;

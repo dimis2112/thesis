@@ -2291,7 +2291,7 @@ let myMasses = {};
 let score_words = [];
 
 let interpollation_flag = true;
-let prediction_flag = false;
+let prediction_flag = true;
 let score_words_flag = true;
 let broadcast_ups = 60;
 
@@ -2682,11 +2682,6 @@ function handleSocket(socket) {
                         playerConfig.visionCenter.x = playerConfig.visionCenter.x + 1 * (x - playerConfig.visionCenter.x);
                         playerConfig.visionCenter.y = playerConfig.visionCenter.y + 1 * (y - playerConfig.visionCenter.y);
                     }
-                    if (prediction_flag) {
-
-                        playerConfig.visionCenter.x = playerConfig.visionCenter.x + 1 * (x - playerConfig.visionCenter.x);
-                        playerConfig.visionCenter.y = playerConfig.visionCenter.y + 1 * (y - playerConfig.visionCenter.y);
-                    }
 
                     //  playerConfig.visionCenter.x = visionCenter.x;
                     //  playerConfig.visionCenter.y = visionCenter.y;
@@ -2921,7 +2916,7 @@ function handleSocket(socket) {
 
 
         lastCells = JSON.parse(JSON.stringify(myPlayer.cells));
-        myPlayer.cells = cells;
+        myPlayer.cells = JSON.parse(JSON.stringify(cells));
 
         myPlayer_au.cells = JSON.parse(JSON.stringify(cells));
 
@@ -2935,10 +2930,10 @@ function handleSocket(socket) {
                     //  RECONCILIATION 
                     //  myPlayer.cells[i].radius = (cell.radius + (0.25) * (myPlayer.cells[i].radius - cell.radius));
                     if (prediction_flag) {
-                        if (Math.abs(myPlayer.cells[i].pos.x - cell.pos.x) > 1000 || Math.abs(myPlayer.cells[i].pos.y - cell.pos.y) > 1000) {
-                            myPlayer.cells[i].pos.x = (cell.pos.x + 1 * (myPlayer.cells[i].pos.x - cell.pos.x));
-                            myPlayer.cells[i].pos.y = (cell.pos.y + 1 * (myPlayer.cells[i].pos.y - cell.pos.y));
-                        }
+
+                        myPlayer.cells[i].pos.x = (cell.pos.x + 0.1 * (myPlayer.cells[i].pos.x - cell.pos.x));
+                        myPlayer.cells[i].pos.y = (cell.pos.y + 0.1 * (myPlayer.cells[i].pos.y - cell.pos.y));
+
                     }
 
                 }
@@ -3501,7 +3496,8 @@ function handleSocket(socket) {
         document.querySelector('#cellsEaten').innerHTML = "Cells Eaten : " + score.cellsEaten;
         document.querySelector('#eliminations').innerHTML = "Eliminations : " + score.eliminations;
         document.querySelector('#totalScore').innerHTML = "Total Score : " + score.totalScore;
-        // document.querySelector('#timeStayedAlive').innerHTML = "Time Stayed Alive : " + score.timeStayedAlive;
+        var result = Math.floor(score.timeStayedAlive / (1000 * 60)) % 60 + ":" + Math.floor(score.timeStayedAlive / 1000) % 60;
+        document.querySelector('#timeStayedAlive').innerHTML = "Time Stayed Alive : " + result;
         // document.querySelector('#highestPosition').innerHTML = "Highest Position : " + score.highestPosition;
 
         document.querySelector("#countDownTimer").style.display = 'none';
