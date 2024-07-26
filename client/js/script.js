@@ -97,17 +97,17 @@ window.onload = function () {
 
 
     if (document.cookie && window.location.href.includes("invited")) {
-        // console.log(document.cookie);
+        ////console.log(document.cookie);
         // fetch the invitation data
         let cookie_str = getCookie("invitation_id");
         let link = window.location.origin + "/invited_player/" + "?invitation_id=" + cookie_str;
-        // console.log(link);
+        ////console.log(link);
 
         fetch(link)
             .then((response) => {
-                // console.log(response);
+                ////console.log(response);
                 response.json().then(data => {
-                    // console.log(data);
+                    ////console.log(data);
 
                     //  render invitation alert window 
                     //document.querySelector("#nickname_Required_invitation").style.display = 'none';
@@ -250,7 +250,7 @@ function handle_create_my_room_btn() {
     socket = io(window.location.href, {
         transports: ["websocket"]
     })
-    // console.log("to kanw !!!", packet, roomName, roomPassword)
+    ////console.log("to kanw !!!", packet, roomName, roomPassword)
     socket.emit('createRoomGame', packet, roomName, roomPassword);
     handleSocket(socket);
 }
@@ -319,7 +319,7 @@ function start_game() {
     myPlayer.totalRadius = 40;
     jumpingFoods = 0.1;
 
-    // // console.log("TIMES TWN ANIMATION VARIABLES ", myPlayer.totalMass, myPlayer.totalRadius);
+    // ////console.log("TIMES TWN ANIMATION VARIABLES ", myPlayer.totalMass, myPlayer.totalRadius);
     c.save();
 
     // kai me afton ton tropo edw katw mporei na doylebei
@@ -360,7 +360,7 @@ function animloop() {
     animationId = requestAnimationFrame(animloop);
     now = Date.now();
     if (now - lastTime > dt) {
-        console.log(now - lastTime);
+        //console.log(now - lastTime);
         lastTime = now;
         sendInputs();
 
@@ -392,7 +392,8 @@ function animloop() {
 
 }
 
-
+let input_number = 1;
+let past_states = [];
 
 function sendInputs() {
 
@@ -404,44 +405,169 @@ function sendInputs() {
             if (input.data) {
                 input_packet.push({
                     name: input.name,
-                    data: input.data
+                    data: input.data,
+                    input_number: input_number
                 })
                 local_target = input.data;
             }
             else {
                 input_packet.push({
                     name: input.name,
+                    input_number: input_number
                 })
                 if (input.name == 'split') {
                     if (prediction_flag) {
                         //split();
                     }
                 }
-
             }
 
+        } else {
+            input_packet.push({
+                input_number: input_number
+            })
         }
 
         input.triggered = false;
 
     })
-
     socket.emit("player input", input_packet);
-
+    past_states.push({
+        cells: JSON.parse(JSON.stringify(myPlayer.cells)),
+        visionCenter: JSON.parse(JSON.stringify(playerConfig.visionCenter)),
+        local_target: JSON.parse(JSON.stringify(local_target)),
+        input_number: JSON.parse(JSON.stringify(input_number))
+    })
+    input_number++;
 }
+
 let local_target = { x: 0, y: 0 };
 // na energopoeitai kati san local cells meta to split
 
+function updatePosition2(past_state, i) {
+
+    let cells = myPlayer.cells;
+    let pos = playerConfig.visionCenter;
+    let target = past_state.local_target;
+    let gc = playerConfig;
+
+    for (let i = 0; i < cells.length; i++) {
+
+
+        // if a Cell has catapult force , it moves unaffected from client's inputs
+        if (cells[i].catapultForce.speed > 0) {
+            let dx = cells[i].catapultForce.dx * cells[i].catapultForce.speed;
+            let dy = cells[i].catapultForce.dy * cells[i].catapultForce.speed;
+
+
+
+            //Out of Bounds
+            if (cells[i].pos.x + dx < 0 + cells[i].radius * 0.5) {
+                dx = 0 - cells[i].pos.x + cells[i].radius * 0.5;
+            }
+            if (cells[i].pos.x + dx > gc.worldWidth - cells[i].radius * 0.5) {
+                dx = gc.worldWidth - cells[i].pos.x - cells[i].radius * 0.5;
+            }
+            if (cells[i].pos.y + dy < cells[i].radius * 0.5) {
+                dy = 0 - cells[i].pos.y + cells[i].radius * 0.5
+            }
+            if (cells[i].pos.y + dy > gc.worldHeight - cells[i].radius * 0.5) {
+                dy = gc.worldHeight - cells[i].pos.y - cells[i].radius * 0.5;
+            }
+
+            dx = Math.floor(dx);
+            dy = Math.floor(dy);
+            cells[i].pos.x += dx;
+            cells[i].pos.y += dy;
+            cells[i].catapultForce.speed -= cells[i].catapultForce.friction;
+
+            if (cells[i].mergeCooldown > 0) {
+                cells[i].mergeCooldown -= 1;
+            }
+
+            continue;
+
+
+        }
+
+        if (cells[i].mergeCooldown > 0) {
+            cells[i].mergeCooldown -= 1;
+        }
+
+        let angle = Math.atan2(target.y + pos.y - cells[i].pos.y, target.x + pos.x - cells[i].pos.x);
+        let vel = massToVel(cells[i].mass);
+        // vel = 6;
+        //console.log(vel, cells[i].mass);
+        let dx = Math.cos(angle) * vel;
+        let dy = Math.sin(angle) * vel;
+
+        for (let j = 0; j < cells.length; j++) {
+            if (i == j) {
+                continue;
+            }
+
+            //Cells touch each other
+            if (Math.hypot(cells[i].pos.x + dx - cells[j].pos.x, cells[i].pos.y + dy - cells[j].pos.y) < cells[i].radius + cells[j].radius && cells[i].catapultForce.speed <= 0 && cells[j].catapultForce.speed <= 0) {
+
+                //The two cells are ready to merge
+                if (cells[i].mergeCooldown == 0 && cells[j].mergeCooldown == 0) {
+                    // if both cells have mergecooldown ==0 then they move without any bother
+
+                }
+
+                // The cells can't overlap because of merge cooldown is not 0 , so they just rub to each other 
+                else {
+
+                    let obj = findValidDisplacement(cells[i], cells[j], dx, dy);
+                    dx = obj.dx;
+                    dy = obj.dy;
+
+                }
+
+
+            }
+        }
+
+
+        // ean einai poly konta ston target tote metatopish ginetai mhden
+        if (Math.hypot(cells[i].pos.x - (pos.x + target.x), cells[i].pos.y - (pos.y + target.y)) < 10) {
+            dx = 0;
+            dy = 0;
+        }
+
+        //Out of Bounds
+        if (cells[i].pos.x + dx < cells[i].radius * 0.5) {
+            dx = 0 - cells[i].pos.x + cells[i].radius * 0.5
+            //dx = -50;
+        }
+        if (cells[i].pos.x + dx > gc.worldWidth - cells[i].radius * 0.5) {
+            //  dx = gc.worldWidth - cells[i].pos.x - cells[i].radius * 0.5;
+            dx = 0;
+        }
+        if (cells[i].pos.y + dy < cells[i].radius * 0.5) {
+            dy = 0 - cells[i].pos.y + cells[i].radius * 0.5
+            // dy = -50;
+        }
+        if (cells[i].pos.y + dy > gc.worldHeight - cells[i].radius * 0.5) {
+            dy = gc.worldHeight - cells[i].pos.y - cells[i].radius * 0.5;
+            // dy = 0;
+
+        }
+
+        dx = Math.floor(dx);
+        dy = Math.floor(dy);
+        cells[i].pos.x += dx;
+        cells[i].pos.y += dy;
+    }
+}
 
 function updatePosition() {
 
-    console.log(myPlayer.cells);
-    console.log("eginaaaaaaa");
     let cells = myPlayer.cells;
     let pos = playerConfig.visionCenter;
     let target = local_target;
     let gc = playerConfig;
-    console.log(cells);
+    ////console.log(cells);
     for (let i = 0; i < cells.length; i++) {
 
 
@@ -737,10 +863,10 @@ function split() {
         }
 
     });
-    console.log(newCells);
+    //console.log(newCells);
     myPlayer.cells = [...newCells];
 
-    // console.log(cells);
+    ////console.log(cells);
     // set new vision center  ~~ geometric median
     let sumX = 0;
     let sumY = 0;
@@ -780,14 +906,22 @@ function calculateState() {
 }
 
 function calculateState2() {
-    //  console.log("EKTYPWSA");
+    // //console.log("EKTYPWSA");
     let target_state_r = JSON.parse(JSON.stringify(target_state));
     let state_temp = JSON.parse(JSON.stringify(target_state));
 
     let time = Date.now();
 
     // do interpollation
-    let int_factor = (time - target_state_r.time) / (target_state_r.time - current_state.time);
+
+    //let int_factor = (time - target_state_r.time) / (target_state_r.time - current_state.time);
+
+    let int_factor = (time - target_state_r.time) / (1000 / broadcast_ups);
+    console.log(int_factor);
+
+    // if (int_factor > 1.5) {
+    //     int_factor = 1.5;
+    // }
 
     state_temp.playerConfig.visionCenter.x = playerConfig.visionCenter.x;
     state_temp.playerConfig.visionCenter.y = playerConfig.visionCenter.y;
@@ -800,6 +934,7 @@ function calculateState2() {
     //         }
     //     }
     // })
+
     state_temp.myPlayer = JSON.parse(JSON.stringify(myPlayer));
     lastCells = JSON.parse(JSON.stringify(myPlayer.cells));
 
@@ -819,11 +954,11 @@ function calculateState2() {
                 cell_t.radius = (cell_c.radius + int_factor * (cell_t.radius - cell_c.radius));
                 cell_t.pos.x = (cell_c.pos.x + int_factor * (cell_t.pos.x - cell_c.pos.x));
                 cell_t.pos.y = (cell_c.pos.y + int_factor * (cell_t.pos.y - cell_c.pos.y));
-                console.log("interpollation pos", cell_t.pos.x);
+                //console.log("interpollation pos", cell_t.pos.x);
             }
         })
         if (cell_t.pre_split_data != undefined && !found) {
-            console.log("BRHKA PRE SPLIT AAAAAAA")
+            //console.log("BRHKA PRE SPLIT AAAAAAA")
             cell_t.radius = (cell_t.pre_split_data.radius + int_factor * (cell_t.radius - cell_t.pre_split_data.radius));
             cell_t.pos.x = (cell_t.pre_split_data.x + int_factor * (cell_t.pos.x - cell_t.pre_split_data.x));
             cell_t.pos.y = (cell_t.pre_split_data.y + int_factor * (cell_t.pos.y - cell_t.pre_split_data.y));
@@ -874,7 +1009,7 @@ function renderState() {
     //drawEnemies2();
     drawEnemies3();
 
-    //  drawPlayerAU();
+    // drawPlayerAU();
     drawPlayerWithPoints();
     if (score_words_flag)
         drawWords();
@@ -973,7 +1108,7 @@ function get_available_rooms() {
 function renderRoom(room) {
 
     let room_div = document.querySelector("#room-div-prototype").cloneNode(true);
-    // console.log(room_div);
+    ////console.log(room_div);
 
     room_div.setAttribute('data-room-id', room.roomId);
     room_div.querySelector("#join-room-name-p").innerText = `Room: ` + room.roomName;
@@ -1006,9 +1141,9 @@ style_card_cell_name.addEventListener("input", () => {
     //     return;
     // }
     // else {
-    //     // console.log("i did the else")
+    //     ////console.log("i did the else")
     // }
-    // console.log(style_card_cell_name.value);
+    ////console.log(style_card_cell_name.value);
     if (style_card_cell_name.value.length < 12) {
         if (style_card_cell_name.value == "555") {
             document.querySelector("#serverSettingsModal").style.display = 'block';
@@ -1041,9 +1176,9 @@ style_card_cell_name.addEventListener("change", () => {
     //     return;
     // }
     // else {
-    //     // console.log("i did the else")
+    //     ////console.log("i did the else")
     // }
-    // console.log(style_card_cell_name.value);
+    ////console.log(style_card_cell_name.value);
     if (style_card_cell_name.value.length < 12) {
         if (style_card_cell_name.value == "555") {
             document.querySelector("#serverSettingsModal").style.display = 'block';
@@ -1083,14 +1218,14 @@ let ever_changing_value_increase = 0.0005 / 2;
 function drawWords() {
 
     if (score_words.length == 0) {
-        // console.log("EGINE AFTO");
+        ////console.log("EGINE AFTO");
         return;
     }
     score_words.forEach((word, i) => {
 
 
 
-        // console.log(word);
+        ////console.log(word);
         // text = 0 
         // x = 1 
         // y = 2 
@@ -1140,7 +1275,7 @@ function drawPlayerAU() {
         c.lineWidth = playerConfig.lineWidth;
         c.strokeStyle = `hsla(${playerConfig.border_hue},100%,40%)`;
         c.fillStyle = `hsla(${playerConfig.hue},100%,50%)`;
-        // // console.log(cell.radius);
+        // ////console.log(cell.radius);
 
 
         var points = 20 + ~~(cell.mass / 5);
@@ -1155,7 +1290,7 @@ function drawPlayerAU() {
         var spin = 0.0;
 
         if (cell.virus == true) {
-            // console.log("BRHKA CELL ME VIRUS");
+            ////console.log("BRHKA CELL ME VIRUS");
             for (let i = 0; i < points; i++) {
                 let x = cell.pos.x + cell.radius * Math.cos(spin);
                 let y = cell.pos.y + cell.radius * Math.sin(spin);
@@ -1331,7 +1466,7 @@ function drawPlayerWithPoints() {
         c.lineWidth = playerConfig.lineWidth;
         c.strokeStyle = `hsla(${playerConfig.border_hue},100%,40%)`;
         c.fillStyle = `hsla(${playerConfig.hue},100%,50%)`;
-        // // console.log(cell.radius);
+        // ////console.log(cell.radius);
 
 
         var points = 20 + ~~(cell.mass / 5);
@@ -1346,7 +1481,7 @@ function drawPlayerWithPoints() {
         var spin = 0.0;
 
         if (cell.virus == true) {
-            // console.log("BRHKA CELL ME VIRUS");
+            ////console.log("BRHKA CELL ME VIRUS");
             for (let i = 0; i < points; i++) {
                 let x = cell.pos.x + cell.radius * Math.cos(spin);
                 let y = cell.pos.y + cell.radius * Math.sin(spin);
@@ -1533,7 +1668,7 @@ function drawEnemies2() {
 
             var spin = 0.0;
             if (cell.virus == true) {
-                // console.log("BRHKA CELL ME VIRUS");
+                ////console.log("BRHKA CELL ME VIRUS");
                 for (let i = 0; i < points; i++) {
                     let x = cell.pos.x + cell.radius * Math.cos(spin);
                     let y = cell.pos.y + cell.radius * Math.sin(spin);
@@ -1707,7 +1842,7 @@ function drawEnemies3() {
 
     myEnemies.forEach((cell) => {
         c.lineWidth = playerConfig.lineWidth;
-        // console.log(myEnemy_players, cell.father);
+        ////console.log(myEnemy_players, cell.father);
         let enemy = myEnemy_players[cell.father];
         if (enemy == undefined) {
             enemy = {
@@ -1717,7 +1852,7 @@ function drawEnemies3() {
         }
 
         if (enemy.ghost) {
-            console.log("BRHKA GHOST")
+            //console.log("BRHKA GHOST")
             c.globalAlpha = 0.2;
 
         }
@@ -1739,7 +1874,7 @@ function drawEnemies3() {
 
         var spin = 0.0;
         if (cell.virus == true) {
-            // console.log("BRHKA CELL ME VIRUS");
+            ////console.log("BRHKA CELL ME VIRUS");
             for (let i = 0; i < points; i++) {
                 let x = cell.pos.x + cell.radius * Math.cos(spin);
                 let y = cell.pos.y + cell.radius * Math.sin(spin);
@@ -1899,7 +2034,7 @@ function drawEnemies3() {
 
 
         if (enemy.ghost) {
-            console.log("BRHKA GHOST")
+            //console.log("BRHKA GHOST")
             c.globalAlpha = 1;
 
         }
@@ -2107,7 +2242,7 @@ function drawMasses() {
 
     Object.keys(myMasses).forEach((id) => {
         let mass = myMasses[id];
-        // console.log(mass);
+        ////console.log(mass);
 
         c.strokeStyle = `hsla(${mass.hue},100%,40%)`;
         c.fillStyle = `hsla(${mass.hue},70%,50%)`;
@@ -2143,7 +2278,7 @@ function drawViruses() {
         c.lineWidth = playerConfig.lineWidth;
         //  c.strokeStyle = `hsla(${playerConfig.hue},100%,40%)`;
         //  c.fillStyle = `hsla(${playerConfig.hue},70%,50%)`;
-        // // console.log(cell.radius);
+        // ////console.log(cell.radius);
 
 
         var points = 20;// 20 + ~~(cell.mass / 5);
@@ -2292,8 +2427,9 @@ let score_words = [];
 
 let interpollation_flag = true;
 let prediction_flag = true;
+
 let score_words_flag = true;
-let broadcast_ups = 60;
+let broadcast_ups = 25;
 
 let state = {
     myFoods: [],
@@ -2491,7 +2627,7 @@ function handleSocket(socket) {
         socket.emit("ping", () => {
             const duration = Date.now() - start;
 
-            console.log(duration);
+            //console.log(duration);
             document.querySelector("#latencyDiv").innerHTML = "Latency: " + duration;
         });
     }, 1000);
@@ -2510,20 +2646,21 @@ function handleSocket(socket) {
         playerConfig.worldHeight = data.worldHeight;
         playerConfig.numOfBackgroundLines = data.numOfBackgroundLines;
 
-        // broadcast_ups = data.broadcast_ups;
+        broadcast_ups = data.broadcast_ups;
+
 
         // prediction_flag = data.prediction_flag;
         // interpollation_flag = data.interpollation_flag;
         score_words_flag = data.score_words_flag;
 
         myFoods = data.foods;
-        // console.log(data.foods);
-        // console.log(data.enemies);
+        ////console.log(data.foods);
+        ////console.log(data.enemies);
         myViruses = data.viruses;
         myEnemy_players = { ...data.enemies };
         myEnemies = [];
         // myMasses = data.masses
-        // // console.log(myFoods);
+        // ////console.log(myFoods);
 
         // create current state 
         updates_received = 2;
@@ -2543,6 +2680,7 @@ function handleSocket(socket) {
 
         //START THE ANIMATION LOOP
         game_over = false;
+        input_number = 1;
         userStatus = "playing";
         start_target_interval();
         enable_game_events();
@@ -2577,7 +2715,7 @@ function handleSocket(socket) {
         myEnemies = data.enemy_cells;
 
 
-        // console.log("AFTOI OI ENEMIES HRTHAN ME TO INIT", data.enemies)
+        ////console.log("AFTOI OI ENEMIES HRTHAN ME TO INIT", data.enemies)
 
         //  HIDE UI AND REVEAL CANVAS AND GAME CONTAINER
         UI_container.style.display = 'none';
@@ -2600,6 +2738,7 @@ function handleSocket(socket) {
 
     socket.on("animate room game", () => {
         //  START THE ANIMATION LOOP
+        input_number = 1;
         game_over = false;
         userStatus = "playing";
         //  start_target_interval();
@@ -2638,6 +2777,7 @@ function handleSocket(socket) {
     let current_update_time = 0;
     let previous_update_time = 0;
     let dt_store = 0;
+    let last_processed_input = 0;
 
     socket.on("u", (my_updates) => {
         if (first_update) {
@@ -2651,13 +2791,13 @@ function handleSocket(socket) {
             count = count - 1;
             current_update_time = Date.now();
             let dt = current_update_time - previous_update_time;
-            //// console.log(dt);
+            //////console.log(dt);
             dt_store += dt;
 
             previous_update_time = current_update_time;
         }
         if (count == 0) {
-            // console.log(`last ${packets_period} packets latency`, dt_store / packets_period);
+            ////console.log(`last ${packets_period} packets latency`, dt_store / packets_period);
             showPing(dt_store / packets_period);
             dt_store = 0;
             count = packets_period;
@@ -2735,7 +2875,7 @@ function handleSocket(socket) {
                 }
                 case 4: {
                     // enemy palyers update 
-                    // console.log(" AAAAAAAAAAAAAAAAAAAAAAAAA enemies map", array);
+                    ////console.log(" AAAAAAAAAAAAAAAAAAAAAAAAA enemies map", array);
                     myEnemy_players[array[1]] = {
                         name: array[2],
                         hue: array[3],
@@ -2746,19 +2886,19 @@ function handleSocket(socket) {
                 }
                 case 5: {
                     // foods eaten update 
-                    // console.log("egina afto", array);
+                    ////console.log("egina afto", array);
                     myFoods.forEach((food, index) => {
                         if (array[1] == food.id) {
                             // this food was eaten
                             myFoods.splice(index, 1);
-                            // console.log("food removed ", myFoods.length);
+                            ////console.log("food removed ", myFoods.length);
                         }
                     })
                     break;
                 }
                 case 6: {
                     // foods born update 
-                    // console.log(array);
+                    ////console.log(array);
                     myFoods.push(array[1]);
                     break;
                 }
@@ -2774,7 +2914,7 @@ function handleSocket(socket) {
                                 myViruses.splice(index, 1);
                             }
                         })
-                        // console.log("brhka ena skotwse virus");
+                        ////console.log("brhka ena skotwse virus");
                     }
                     if (status == 1) {
                         // update virus position and add 
@@ -2810,7 +2950,7 @@ function handleSocket(socket) {
                     // masses update 
                     let status = array[1];
                     let id = array[2];
-                    // console.log("hrthe", array);
+                    ////console.log("hrthe", array);
                     switch (status) {
                         case 0: {
                             // update mass position 
@@ -2832,7 +2972,7 @@ function handleSocket(socket) {
                                 }
                             }
 
-                            // console.log(myMasses);
+                            ////console.log(myMasses);
                             break;
                         }
                         case 2: {
@@ -2858,7 +2998,7 @@ function handleSocket(socket) {
 
                     switch (array[1]) {
                         case 1: {
-                            console.log("MOU HRTHE WORD", array);
+                            //console.log("MOU HRTHE WORD", array);
                             let word = new Word("+1", array[2], array[3], 100)
 
                             score_words.push(word);
@@ -2866,9 +3006,9 @@ function handleSocket(socket) {
                                 if (Math.abs(array[2] - food.pos.x) < 5 && Math.abs(array[3] - food.pos.y) < 5) {
                                     // this food was eaten
                                     myFoods.splice(index, 1);
-                                    // console.log("ebgala to food");
+                                    ////console.log("ebgala to food");
                                     // word.text = "ebgala to food"
-                                    // console.log("food removed ", myFoods.length);
+                                    ////console.log("food removed ", myFoods.length);
                                 }
                             })
                             //console.log(score_words);
@@ -2898,18 +3038,16 @@ function handleSocket(socket) {
                     break;
                 }
 
+                case 11: {
+                    last_processed_input = array[1];
+                }
+
             }
         });
 
         myEnemies = enemy_cells;
 
-
-
-
-
         // set new state 
-
-
         let totalRadius = 0;
         let totalMass = 0;
 
@@ -2919,20 +3057,16 @@ function handleSocket(socket) {
         })
 
 
+        myPlayer_au.cells = JSON.parse(JSON.stringify(cells));
         lastCells = JSON.parse(JSON.stringify(myPlayer.cells));
         myPlayer.cells = JSON.parse(JSON.stringify(cells));
 
-        myPlayer_au.cells = JSON.parse(JSON.stringify(cells));
-
-
-
-        // do interpollation
 
         lastCells.forEach((cell) => {
             for (i = 0; i < myPlayer.cells.length; i++) {
                 if (cell.id == myPlayer.cells[i].id) {
                     //  RECONCILIATION 
-                    //  myPlayer.cells[i].radius = (cell.radius + (0.25) * (myPlayer.cells[i].radius - cell.radius));
+                    myPlayer.cells[i].radius = (cell.radius + (0.25) * (myPlayer.cells[i].radius - cell.radius));
                     if (prediction_flag) {
 
                         myPlayer.cells[i].pos.x = (cell.pos.x + 0.1 * (myPlayer.cells[i].pos.x - cell.pos.x));
@@ -2945,17 +3079,45 @@ function handleSocket(socket) {
         })
 
 
+        // let auth_cells = JSON.parse(JSON.stringify(cells));
+
+        ////console.log("Last processed input: ", last_processed_input);
+
+        // for (let i = 0; i < past_states.length; i++) {
+        //     if (past_states[i].input_number < last_processed_input) {
+        //         past_states.splice(i, 1);
+        //     }
+        // }
+        ////console.log(past_states.length)
+
+
+        // auth_cells.forEach((cell) => {
+        //     for (i = 0; i < myPlayer.cells.length; i++) {
+        //         if (cell.id == myPlayer.cells[i].id) {
+        //             //  RECONCILIATION 
+        //             // myPlayer.cells[i].radius = (cell.radius + (0.25) * (myPlayer.cells[i].radius - cell.radius));
+        //             if (prediction_flag) {
+
+        //                 //   myPlayer.cells[i].pos.x = (cell.pos.x + 0.1 * (myPlayer.cells[i].pos.x - cell.pos.x));
+        //                 //  myPlayer.cells[i].pos.y = (cell.pos.y + 0.1 * (myPlayer.cells[i].pos.y - cell.pos.y));
+
+        //             }
+
+        //         }
+        //     }
+        // })
+
+        // for (let i = 0; i < past_states.length; i++) {
+        //     // updatePosition2(past_states[i], i);
+        //     // updatePosition();
+        // }
+
         myPlayer.cells.sort((a, b) => { a.radius - b.radius });
         myPlayer.cells.reverse();
 
 
-
-
         updates_received -= 1;
-
         // set old_state 
-
-
         if (updates_received == 1) {
             // set current state
             current_state.myEnemies = myEnemies;
@@ -2986,7 +3148,7 @@ function handleSocket(socket) {
             target_state.playerConfig.visionCenter.x = playerConfig.visionCenter.x;
             target_state.playerConfig.visionCenter.y = playerConfig.visionCenter.y;
             target_state.time = Date.now();
-            console.log("ELABA", target_state.time);
+            //console.log("ELABA", target_state.time);
         }
 
         if (updates_received < 0) {
@@ -3003,7 +3165,7 @@ function handleSocket(socket) {
             target_state.playerConfig.visionCenter.x = playerConfig.visionCenter.x;
             target_state.playerConfig.visionCenter.y = playerConfig.visionCenter.y;
             target_state.time = Date.now();
-            console.log("ELABA", target_state.time);
+            //console.log("ELABA", target_state.time);
         }
 
         // old state enemy_cells , viruses 
@@ -3024,7 +3186,7 @@ function handleSocket(socket) {
         document.querySelector('#TotalMass').innerHTML = "Total Mass :" + Math.round(totalMass * 100) / 100;
         document.querySelector('#FoodsEaten').innerHTML = "Total Score :" + totalScore;
 
-        //  // console.log(totalMass);
+        //  ////console.log(totalMass);
 
         //  setStartOfWorld();
     })
@@ -3043,7 +3205,7 @@ function handleSocket(socket) {
 
 
         if (package.foods_eaten.length >= 1) {
-            // console.log(package.foods_eaten);
+            ////console.log(package.foods_eaten);
 
         }
 
@@ -3052,7 +3214,7 @@ function handleSocket(socket) {
                 if (id == food.id) {
                     // this food was eaten
                     myFoods.splice(index, 1);
-                    // console.log("food removed ", myFoods.length);
+                    ////console.log("food removed ", myFoods.length);
                 }
             })
         })
@@ -3070,7 +3232,7 @@ function handleSocket(socket) {
                         myViruses.splice(index, 1);
                     }
                 })
-                // console.log("brhka ena skotwse virus");
+                ////console.log("brhka ena skotwse virus");
             }
             if (status == 1) {
                 // update virus position and add 
@@ -3168,17 +3330,17 @@ function handleSocket(socket) {
         document.querySelector('#TotalMass').innerHTML = "Total Mass :" + Math.round(totalMass * 100) / 100;
         document.querySelector('#FoodsEaten').innerHTML = "Foods Eaten :" + foodsEaten;
 
-        //  // console.log(totalMass);
+        //  ////console.log(totalMass);
 
         //  setStartOfWorld();
     });
 
     socket.on('players joined', (players, roomData) => {
-        console.log("AFTO FTANEI EDw");
-        console.log(players, roomData);
+        //console.log("AFTO FTANEI EDw");
+        //console.log(players, roomData);
 
         if (cardStatus == 'create-my-room-card') {
-            // console.log("Egine afto")
+            ////console.log("Egine afto")
 
             // reveal roomDiv
             document.querySelector("#my-room-div").style.display = 'block'
@@ -3215,13 +3377,13 @@ function handleSocket(socket) {
 
             // merge invitation id with window.location 
             socket.on("invitation id", (id) => {
-                // console.log("to id pou erxetai", id);
+                ////console.log("to id pou erxetai", id);
                 // invitation_id = [...id];
                 link = window.location + "invited/" + "?invitation_id=" + id;
                 // document.querySelector("#link-p").innerText = "";
                 // document.querySelector("#link-p").innerText = link;
                 document.querySelector("#clipboard-btn").addEventListener('click', () => {
-                    console.log("eginaa")
+                    //console.log("eginaa")
                     navigator.clipboard.writeText(link);
                 })
 
@@ -3275,7 +3437,7 @@ function handleSocket(socket) {
     })
 
     socket.on('Leaderboard', (data) => {
-        // console.log(data);
+        ////console.log(data);
 
         for (let i = 0; i < 10; i++) {
             let str = "#pos" + (i + 1);
@@ -3300,7 +3462,7 @@ function handleSocket(socket) {
 
 
     socket.on('available_rooms', (rooms) => {
-        // console.log(rooms);
+        ////console.log(rooms);
         // clear older rooms
         document.getElementById("rooms-container").innerHTML = "";
 
@@ -3339,14 +3501,14 @@ function handleSocket(socket) {
 
     socket.on('countDown', (str) => {
         document.querySelector("#countDownTimer").style.display = 'block';
-        // console.log("ERXOMAI");
+        ////console.log("ERXOMAI");
         document.querySelector("#timer").innerHTML = str;
 
     })
 
     socket.on('room-game-over', (data) => {
-        // console.log("ROOM GAME IS OVER");
-        // console.log(data);
+        ////console.log("ROOM GAME IS OVER");
+        ////console.log(data);
 
 
         // create time's up animation 
@@ -3457,6 +3619,7 @@ function handleSocket(socket) {
             document.querySelector("#ghost-countdown").style.display = "none";
 
             game_over = true;
+            input_number = 1;
             ever_changing_value = 0;
             userStatus = "ui";
             UI_container.style.display = 'block';
@@ -3492,7 +3655,7 @@ function handleSocket(socket) {
     })
 
     socket.on('defeated', (score) => {
-        // // console.log("FINAL SCORE ", score);
+        // ////console.log("FINAL SCORE ", score);
         document.querySelector("#roomGameResults").innerHTML = '';
 
         document.querySelector("#board").style.display = 'block';
@@ -3507,6 +3670,7 @@ function handleSocket(socket) {
         document.querySelector("#countDownTimer").style.display = 'none';
 
         game_over = true;
+        input_number = 1;
         ever_changing_value = 0;
         gameContainer.style.display = 'none';
         userStatus = "ui";
@@ -3530,27 +3694,27 @@ function handleSocket(socket) {
 
 window.addEventListener('resize', event => {
     event.preventDefault();
-    // console.log("EGINE RESIZE");
+    ////console.log("EGINE RESIZE");
     canvas.width = window.innerWidth;
     canvas.height = window.innerHeight;
 
 });
 
 // disables zoom from control + wheel
-document.addEventListener(
-    "wheel",
-    function touchHandler(e) {
-        if (e.ctrlKey) {
-            e.preventDefault();
-        }
-    }, { passive: false });
+// document.addEventListener(
+//     "wheel",
+//     function touchHandler(e) {
+//         if (e.ctrlKey) {
+//             e.preventDefault();
+//         }
+//     }, { passive: false });
 
-// disables zoom from control + '+' or '-'
-window.addEventListener('keydown', function (e) {
-    if ((e.ctrlKey || e.metaKey) && (e.which === 61 || e.which === 107 || e.which === 173 || e.which === 109 || e.which === 187 || e.which === 189)) {
-        e.preventDefault();
-    }
-}, false);
+// // disables zoom from control + '+' or '-'
+// window.addEventListener('keydown', function (e) {
+//     if ((e.ctrlKey || e.metaKey) && (e.which === 61 || e.which === 107 || e.which === 173 || e.which === 109 || e.which === 187 || e.which === 189)) {
+//         e.preventDefault();
+//     }
+// }, false);
 
 
 let vision_offset = { x: 0, y: 0 }
@@ -3589,7 +3753,7 @@ function disable_game_events() {
 }
 
 function handleMouseMove(event) {
-    //  // console.log("ΣΤΕΙΛΕ");
+    //  ////console.log("ΣΤΕΙΛΕ");
     local_target.x = (event.clientX - window.innerWidth / 2) * (1 / newzoom);
     local_target.y = (event.clientY - window.innerHeight / 2) * (1 / newzoom);
 

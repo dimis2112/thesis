@@ -2,11 +2,15 @@ const util = require('./utilities.js');
 const gc = require('./gameConfig.json');
 const server = require('./server.js');
 
+let hh = 1;
+
 class Player {
   constructor(array) {
     this.name
     this.bot = false;
-    this.pos = (gc.betterPosition) ? util.betterPosition(array, gc.initialRadius) : util.randomPosition();// { x: 100, y: 100 } 
+    // this.pos = (gc.betterPosition) ? util.betterPosition(array, gc.initialRadius) : util.randomPosition();// { x: 100, y: 100 } 
+    this.pos = (hh == 1) ? { x: 1000, y: 1000 } : { x: 1200, y: 1200 };// { x: 100, y: 100 }
+    hh = 2;
     this.hue = null;
     this.border_hue = null;
     this.totalMass = 0;

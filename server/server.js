@@ -60,8 +60,8 @@ let server_settings = {
 }
 
 let serverInterval;
-
 let broadcastInterval = null;
+
 let invitations = {};
 
 let players = {};
@@ -122,6 +122,7 @@ io.on('connection', function (client) {
         ready_to_go: false,
         father_id: util.makeid(3),
         i_am_new_ticks: 3,
+        last_processed_input: 0,
 
     }
 
@@ -207,8 +208,8 @@ io.on('connection', function (client) {
             cells: newPlayer.cells,
             playerName: rooms.liveWorld.players[client.id].name,
             position: newPlayer.pos,
-            worldWidth: gc.gameWidth,
-            worldHeight: gc.gameHeight,
+            worldWidth: gc.liveWorldGameWidth,
+            worldHeight: gc.liveWorldGameHeight,
             numOfBackgroundLines: gc.numOfBackgroundLines,
             roomName: rooms.liveWorld.players[client.id].roomName,
             masses: rooms.liveWorld.masses,
@@ -317,7 +318,7 @@ io.on('connection', function (client) {
         try { rooms[roomId].players }
         catch (err) {
             // the room doesnt exist anymore 
-            client.emit('room not found', "This room doesnt exist anymore, try join another room");
+            client.emit('room not found', "This room doesn't exist anymore, try join another room");
             return;
         }
 
@@ -633,6 +634,8 @@ io.on('connection', function (client) {
             else if (input.name == "eject virus") {
                 players[client.id].game_object.eject_virus(rooms[players[client.id].roomId].viruses, client.id);
             }
+
+            players[client.id].last_processed_input = input.input_number;
         })
     })
 
@@ -942,7 +945,7 @@ function game_world_update() {
                                                     // an den einai bot , steile defeated kanonika.
                                                     if (players[id2].game_object != null) {
                                                         let endOfTime = Date.now();
-                                                        players[client.id].game_object.score.timeStayedAlive = endOfTime - players[client.id].game_object.score.timeStart;
+                                                        players[id2].game_object.score.timeStayedAlive = endOfTime - players[id2].game_object.score.timeStart;
                                                         players[id2].socket.emit('defeated', players[id2].game_object.score);
                                                     }
 
@@ -1193,19 +1196,20 @@ function broadcast_updates() {
                 }
                 //   players[id].my_updates = [...package2];
 
-                let package = {
-                    pos: players[id].game_object.pos,
-                    cells: cellsUpdated,
-                    foodsEaten: players[id].game_object.foodsEaten,
-                    enemies: enemies,
-                    enemy_players: enemy_players,
-                    foods_eaten: foods_eaten,
-                    foods_born: foods_born,
-                    virus_updates: virus_updates,
-                    masses: rooms[roomId].masses
-                }
+                // let package = {
+                //     pos: players[id].game_object.pos,
+                //     cells: cellsUpdated,
+                //     foodsEaten: players[id].game_object.foodsEaten,
+                //     enemies: enemies,
+                //     enemy_players: enemy_players,
+                //     foods_eaten: foods_eaten,
+                //     foods_born: foods_born,
+                //     virus_updates: virus_updates,
+                //     masses: rooms[roomId].masses
+                // }
 
                 // send update
+                package2.push([11, players[id].last_processed_input])
                 if (!players[id].bot) {
 
 

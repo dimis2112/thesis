@@ -100,7 +100,7 @@ exports.betterPosition = function (points, radius) {
   return bestCandidate;
 };
 
-let arr = [];
+let used_ids = [];
 exports.makeid = function (length) {
   do {
     var result = '';
@@ -109,8 +109,8 @@ exports.makeid = function (length) {
     for (var i = 0; i < length; i++) {
       result += characters.charAt(Math.floor(Math.random() * charactersLength));
     }
-  } while (arr.includes(result))
-  arr.push(result);
+  } while (used_ids.includes(result))
+  used_ids.push(result);
   return result;
 }
 
